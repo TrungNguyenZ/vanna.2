@@ -20,6 +20,21 @@ from vanna import (
     MockLlmService,
     User,
 )
+from vanna.core.registry import ToolRegistry
+from vanna.core.user import UserResolver, RequestContext
+from vanna.integrations.local.agent_memory import DemoAgentMemory
+
+
+class SimpleUserResolver(UserResolver):
+    """Simple user resolver for demo - always returns the same test user."""
+
+    async def resolve_user(self, request_context: RequestContext) -> User:
+        return User(
+            id="user123",
+            username="testuser",
+            email="test@example.com",
+            group_memberships=["user"],
+        )
 
 
 def create_demo_agent() -> Agent:
@@ -32,8 +47,15 @@ def create_demo_agent() -> Agent:
         response_content="Hello! I'm a helpful AI assistant created using the Vanna Agents framework."
     )
 
+    tool_registry = ToolRegistry()
+    user_resolver = SimpleUserResolver()
+    agent_memory = DemoAgentMemory(max_items=1000)
+
     return Agent(
         llm_service=llm_service,
+        tool_registry=tool_registry,
+        user_resolver=user_resolver,
+        agent_memory=agent_memory,
         config=AgentConfig(
             stream_responses=True,  # Enable streaming for better server experience
             include_thinking_indicators=True,
@@ -47,9 +69,11 @@ async def main() -> None:
     # Create agent using factory function
     agent = create_demo_agent()
 
-    # Create a test user
-    user = User(
-        id="user123", username="testuser", email="test@example.com", permissions=[]
+    # Create a request context (simulating a web request)
+    request_context = RequestContext(
+        cookies={},
+        headers={},
+        remote_addr="127.0.0.1",
     )
 
     # Start a conversation
@@ -61,7 +85,9 @@ async def main() -> None:
 
     # Send message and collect response
     async for component in agent.send_message(
-        user=user, message=user_message, conversation_id=conversation_id
+        request_context=request_context,
+        message=user_message,
+        conversation_id=conversation_id,
     ):
         if hasattr(component, "content"):
             print(component.content, end="")

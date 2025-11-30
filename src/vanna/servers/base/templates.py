@@ -52,167 +52,208 @@ def get_index_html(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanna Agents Chat</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>AI Data Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
     <script>
+        window.FontAwesomeConfig = {{ autoReplaceSvg: 'nest' }};
         tailwind.config = {{
             theme: {{
                 extend: {{
                     colors: {{
-                        'vanna-navy': '#023d60',
-                        'vanna-cream': '#e7e1cf',
-                        'vanna-teal': '#15a8a8',
-                        'vanna-orange': '#fe5d26',
-                        'vanna-magenta': '#bf1363',
+                        navy: {{
+                            DEFAULT: '#003366',
+                            dark: '#0F172A',
+                            light: '#162033'
+                        }},
+                        azure: {{
+                            DEFAULT: '#2F6EFF',
+                            light: '#E5F1FF',
+                            hover: '#00D4FF'
+                        }},
+                        soft: {{
+                            green: '#47C97E',
+                            orange: '#FFB86B',
+                            red: '#FF6B6B',
+                            gray: '#F7F9FB',
+                            border: '#E1E6EE',
+                            text: '#5D6B82'
+                        }}
                     }},
                     fontFamily: {{
-                        'sans': ['Space Grotesk', 'ui-sans-serif', 'system-ui'],
-                        'serif': ['Roboto Slab', 'ui-serif', 'Georgia'],
-                        'mono': ['Space Mono', 'ui-monospace', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }},
+                    boxShadow: {{
+                        'soft': '0 4px 20px rgba(0, 0, 0, 0.03)',
+                        'card': '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                 }}
             }}
         }}
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body {{
-            background: linear-gradient(to bottom, #e7e1cf, #ffffff, #e7e1cf);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }}
-
-        /* Background decorations matching landing page */
-        body::before {{
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            /* Radial gradients with brand colors */
-            background:
-                radial-gradient(circle at top left, rgba(21, 168, 168, 0.12), transparent 60%),
-                radial-gradient(circle at bottom right, rgba(254, 93, 38, 0.08), transparent 65%);
-        }}
-
-        body::after {{
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            /* Dot pattern with retro computing aesthetic */
-            background-image: radial-gradient(circle at 2px 2px, rgba(2, 61, 96, 0.3) 1px, transparent 0);
-            background-size: 32px 32px;
-            /* Grid overlay */
-            background-image:
-                radial-gradient(circle at 2px 2px, rgba(2, 61, 96, 0.3) 1px, transparent 0),
-                linear-gradient(rgba(2, 61, 96, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(2, 61, 96, 0.1) 1px, transparent 1px);
-            background-size: 32px 32px, 100px 100px, 100px 100px;
-        }}
-
-        /* Ensure content is above background */
-        body > * {{
-            position: relative;
-            z-index: 1;
-        }}
-
+        body {{ font-family: 'Inter', sans-serif; background-color: #F7F9FB; color: #1A1A1A; }}
+        ::-webkit-scrollbar {{ width: 6px; height: 6px; }}
+        ::-webkit-scrollbar-track {{ background: transparent; }}
+        ::-webkit-scrollbar-thumb {{ background: #D7DEE6; border-radius: 3px; }}
+        ::-webkit-scrollbar-thumb:hover {{ background: #9AA6B8; }}
+        .glass-effect {{ background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }}
+        .typing-dot {{ animation: typing 1.4s infinite ease-in-out both; }}
+        .typing-dot:nth-child(1) {{ animation-delay: -0.32s; }}
+        .typing-dot:nth-child(2) {{ animation-delay: -0.16s; }}
+        @keyframes typing {{ 0%, 80%, 100% {{ transform: scale(0); }} 40% {{ transform: scale(1); }} }}
+        
+        /* Hide default vanna-chat styling and integrate into layout */
         vanna-chat {{
             width: 100%;
             height: 100%;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }}
+        
+        /* Override vanna-chat internal styles to match new design */
+        vanna-chat::part(header) {{
+            display: none !important;
         }}
     </style>
     {component_script}
 </head>
-<body>
-    <div class="max-w-6xl mx-auto p-5">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-vanna-navy mb-2 font-serif">Vanna Agents</h1>
-            <p class="text-lg font-mono font-bold text-vanna-teal mb-4">DATA-FIRST AGENTS</p>
-            <p class="text-slate-600 mb-4">Interactive AI Assistant powered by Vanna Agents Framework</p>
-            <a href="javascript:window.location='view-source:'+window.location.href" class="inline-flex items-center gap-2 px-4 py-2 bg-vanna-teal text-white text-sm font-medium rounded-lg hover:bg-vanna-navy transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-                </svg>
-                View Page Source
-            </a>
-        </div>
+<body class="h-screen flex flex-col overflow-hidden">
 
-        {('    <div class="bg-vanna-orange/10 border border-vanna-orange/30 rounded-lg p-3 mb-5 text-vanna-orange text-sm font-medium">📦 Development Mode: Loading components from local assets</div>' if dev_mode else "")}
-
-        <!-- Login Form -->
-        <div id="loginContainer" class="max-w-md mx-auto mb-10 bg-white p-8 rounded-xl shadow-lg border border-vanna-teal/30">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-semibold text-vanna-navy mb-2 font-serif">Login to Continue</h2>
-                <p class="text-sm text-slate-600">Select your email to access the chat</p>
+    <!-- Header -->
+    <header id="header" class="h-16 bg-gradient-to-r from-navy to-[#004080] flex items-center justify-between px-6 shadow-md z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white backdrop-blur-sm border border-white/20">
+                <i class="fa-solid fa-database text-sm"></i>
             </div>
+            <h1 class="text-white font-semibold text-lg tracking-tight">AI Data Assistant</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full border border-white/10 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-soft-green shadow-[0_0_8px_rgba(71,201,126,0.6)]" id="statusIndicator"></span>
+                <span class="text-xs text-white/90 font-medium" id="statusText">Connected</span>
+            </div>
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors" id="settingsButton">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors" id="logoutButtonHeader">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
 
+    <!-- Login Form (shown by default) -->
+    <div id="loginContainer" class="flex-1 flex items-center justify-center p-6">
+        <div class="max-w-md w-full bg-white rounded-xl shadow-soft border border-soft-border p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-2">Login to Continue</h2>
+                <p class="text-sm text-soft-text">Select your email to access the chat</p>
+            </div>
             <div class="mb-5">
-                <label for="emailInput" class="block mb-2 text-sm font-medium text-vanna-navy">Email Address</label>
-                <select
-                    id="emailInput"
-                    class="w-full px-4 py-3 text-sm border border-vanna-teal/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-vanna-teal focus:border-transparent bg-white"
-                >
+                <label for="emailInput" class="block mb-2 text-sm font-medium text-gray-700">Email Address</label>
+                <select id="emailInput" class="w-full px-4 py-3 text-sm border border-soft-border rounded-lg focus:outline-none focus:ring-2 focus:ring-azure focus:border-transparent bg-white">
                     <option value="">Select an email...</option>
                     <option value="admin@example.com">admin@example.com</option>
                     <option value="user@example.com">user@example.com</option>
                 </select>
             </div>
-
-            <button id="loginButton" class="w-full px-4 py-3 bg-vanna-teal text-white text-sm font-medium rounded-lg hover:bg-vanna-navy focus:outline-none focus:ring-2 focus:ring-vanna-teal focus:ring-offset-2 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+            <button id="loginButton" class="w-full px-4 py-3 bg-navy text-white text-sm font-medium rounded-lg hover:bg-azure transition disabled:bg-gray-400 disabled:cursor-not-allowed">
                 Continue
             </button>
-
-            <div class="mt-5 p-3 bg-vanna-teal/10 border-l-4 border-vanna-teal rounded text-xs text-vanna-navy leading-relaxed">
-                <strong>Demo Mode:</strong> This is a frontend-only authentication demo.
-                Your email will be stored as a cookie and automatically sent with all API requests.
+            <div class="mt-5 p-3 bg-azure-light border-l-4 border-azure rounded text-xs text-gray-700 leading-relaxed">
+                <strong>Demo Mode:</strong> This is a frontend-only authentication demo. Your email will be stored as a cookie.
             </div>
         </div>
+    </div>
 
-        <!-- Logged In Status (hidden by default) -->
-        <div id="loggedInStatus" class="hidden text-center p-4 bg-vanna-teal/10 border border-vanna-teal/30 rounded-lg mb-5">
-            Logged in as <span id="loggedInEmail" class="font-semibold text-vanna-navy"></span>
-            <br>
-            <button id="logoutButton" class="mt-2 px-3 py-1.5 bg-vanna-navy text-white text-xs rounded hover:bg-vanna-teal transition">
-                Logout
-            </button>
-        </div>
+    <!-- Main Layout (hidden by default) -->
+    <div id="mainLayout" class="flex flex-1 overflow-hidden hidden">
+        
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 flex flex-col relative min-w-0">
+            
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                
+                <!-- System Status Card -->
+                <div id="system-status-card" class="bg-white rounded-xl shadow-soft border border-soft-border p-5">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-soft-green/10 flex items-center justify-center text-soft-green">
+                                <i class="fa-solid fa-check-circle text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-semibold text-gray-900">System Ready</h2>
+                                <p class="text-sm text-soft-text">All data pipelines are active and synchronized.</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-soft-green/10 text-soft-green text-xs font-semibold rounded-full border border-soft-green/20" id="userRoleBadge">USER VIEW</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="flex items-center gap-2 p-3 bg-soft-gray rounded-lg border border-soft-border">
+                            <i class="fa-solid fa-database text-azure text-sm"></i>
+                            <span class="text-sm font-medium text-gray-700">SQL Engine</span>
+                            <i class="fa-solid fa-check text-soft-green ml-auto text-xs"></i>
+                        </div>
+                        <div class="flex items-center gap-2 p-3 bg-soft-gray rounded-lg border border-soft-border">
+                            <i class="fa-solid fa-brain text-azure text-sm"></i>
+                            <span class="text-sm font-medium text-gray-700">Memory Context</span>
+                            <i class="fa-solid fa-check text-soft-green ml-auto text-xs"></i>
+                        </div>
+                        <div class="flex items-center gap-2 p-3 bg-soft-gray rounded-lg border border-soft-border">
+                            <i class="fa-solid fa-chart-pie text-azure text-sm"></i>
+                            <span class="text-sm font-medium text-gray-700">Visualization</span>
+                            <i class="fa-solid fa-check text-soft-green ml-auto text-xs"></i>
+                        </div>
+                    </div>
 
-        <!-- Chat Container (hidden by default) -->
-        <div id="chatSections" class="hidden">
-            <div class="bg-white rounded-xl shadow-lg h-[600px] overflow-hidden border border-vanna-teal/30">
-                <vanna-chat
-                    api-base="{api_base_url}"
-                    sse-endpoint="{api_base_url}/api/vanna/v2/chat_sse"
-                    ws-endpoint="{api_base_url}/api/vanna/v2/chat_websocket"
-                    poll-endpoint="{api_base_url}/api/vanna/v2/chat_poll">
-                </vanna-chat>
+                    <div class="flex gap-3 pt-2 border-t border-soft-border">
+                        <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-soft-text hover:text-azure hover:bg-azure-light rounded-lg transition-colors">
+                            <i class="fa-regular fa-lightbulb"></i> Help Guide
+                        </button>
+                        <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-soft-text hover:text-azure hover:bg-azure-light rounded-lg transition-colors">
+                            <i class="fa-solid fa-layer-group"></i> View Memories
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Container -->
+                <div class="bg-white rounded-xl shadow-card border border-soft-border overflow-hidden" style="min-height: 500px;">
+                    <vanna-chat
+                        api-base="{api_base_url}"
+                        sse-endpoint="{api_base_url}/api/vanna/v2/chat_sse"
+                        ws-endpoint="{api_base_url}/api/vanna/v2/chat_websocket"
+                        poll-endpoint="{api_base_url}/api/vanna/v2/chat_poll"
+                        style="height: 100%; display: flex; flex-direction: column;">
+                    </vanna-chat>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Tasks/History) -->
+        <aside id="right-sidebar" class="w-80 bg-white border-l border-soft-border hidden xl:flex flex-col">
+            <div class="p-5 border-b border-soft-border">
+                <h3 class="font-semibold text-gray-800">Session History</h3>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 space-y-3" id="historyContainer">
+                <!-- History items will be populated by JavaScript -->
             </div>
 
-            <div class="mt-8 p-5 bg-white rounded-lg shadow border border-vanna-teal/30">
-                <h3 class="text-lg font-semibold text-vanna-navy mb-3 font-serif">API Endpoints</h3>
-                <ul class="space-y-2">
-                    <li class="p-2 bg-vanna-cream/50 rounded font-mono text-sm">
-                        <span class="font-bold text-vanna-teal mr-2">POST</span>{api_base_url}/api/vanna/v2/chat_sse - Server-Sent Events streaming
-                    </li>
-                    <li class="p-2 bg-vanna-cream/50 rounded font-mono text-sm">
-                        <span class="font-bold text-vanna-teal mr-2">WS</span>{api_base_url}/api/vanna/v2/chat_websocket - WebSocket real-time chat
-                    </li>
-                    <li class="p-2 bg-vanna-cream/50 rounded font-mono text-sm">
-                        <span class="font-bold text-vanna-teal mr-2">POST</span>{api_base_url}/api/vanna/v2/chat_poll - Request/response polling
-                    </li>
-                    <li class="p-2 bg-vanna-cream/50 rounded font-mono text-sm">
-                        <span class="font-bold text-vanna-teal mr-2">GET</span>{api_base_url}/health - Health check
-                    </li>
-                </ul>
+            <div class="p-4 border-t border-soft-border bg-soft-gray/30">
+                <button class="w-full py-2.5 rounded-lg border border-soft-border bg-white text-sm font-medium text-soft-text hover:text-navy hover:border-navy hover:shadow-sm transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> New Session
+                </button>
             </div>
-        </div>
+        </aside>
+
     </div>
 
     <script>
@@ -232,49 +273,76 @@ def get_index_html(
             document.cookie = `${{name}}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
         }};
 
-        // Login/Logout
+        // Login/Logout functionality
         document.addEventListener('DOMContentLoaded', () => {{
             const email = getCookie('vanna_email');
+            const loginContainer = document.getElementById('loginContainer');
+            const mainLayout = document.getElementById('mainLayout');
+            const loginButton = document.getElementById('loginButton');
+            const emailInput = document.getElementById('emailInput');
+            const logoutButtonHeader = document.getElementById('logoutButtonHeader');
+            const userRoleBadge = document.getElementById('userRoleBadge');
 
             // Check if already logged in
             if (email) {{
                 loginContainer.classList.add('hidden');
-                loggedInStatus.classList.remove('hidden');
-                chatSections.classList.remove('hidden');
-                loggedInEmail.textContent = email;
+                mainLayout.classList.remove('hidden');
+                updateUserRole(email);
             }}
 
             // Login button
-            loginButton.addEventListener('click', () => {{
-                const email = emailInput.value.trim();
-                if (!email) {{
-                    alert('Please select an email address');
-                    return;
-                }}
-                setCookie('vanna_email', email);
-                loginContainer.classList.add('hidden');
-                loggedInStatus.classList.remove('hidden');
-                chatSections.classList.remove('hidden');
-                loggedInEmail.textContent = email;
-            }});
+            if (loginButton) {{
+                loginButton.addEventListener('click', () => {{
+                    const email = emailInput.value.trim();
+                    if (!email) {{
+                        alert('Please select an email address');
+                        return;
+                    }}
+                    setCookie('vanna_email', email);
+                    loginContainer.classList.add('hidden');
+                    mainLayout.classList.remove('hidden');
+                    updateUserRole(email);
+                }});
+            }}
 
-            // Logout button
-            logoutButton.addEventListener('click', () => {{
-                deleteCookie('vanna_email');
-                loginContainer.classList.remove('hidden');
-                loggedInStatus.classList.add('hidden');
-                chatSections.classList.add('hidden');
-                emailInput.value = '';
-            }});
+            // Logout button in header
+            if (logoutButtonHeader) {{
+                logoutButtonHeader.addEventListener('click', () => {{
+                    deleteCookie('vanna_email');
+                    loginContainer.classList.remove('hidden');
+                    mainLayout.classList.add('hidden');
+                    if (emailInput) emailInput.value = '';
+                }});
+            }}
 
             // Enter key
-            emailInput.addEventListener('keypress', (e) => {{
-                if (e.key === 'Enter') loginButton.click();
-            }});
-        }});
-    </script>
+            if (emailInput) {{
+                emailInput.addEventListener('keypress', (e) => {{
+                    if (e.key === 'Enter' && loginButton) loginButton.click();
+                }});
+            }}
 
-    <script>
+            function updateUserRole(email) {{
+                if (userRoleBadge) {{
+                    if (email === 'admin@example.com') {{
+                        userRoleBadge.textContent = 'ADMIN VIEW';
+                        userRoleBadge.className = 'px-3 py-1 bg-soft-green/10 text-soft-green text-xs font-semibold rounded-full border border-soft-green/20';
+                    }} else {{
+                        userRoleBadge.textContent = 'USER VIEW';
+                        userRoleBadge.className = 'px-3 py-1 bg-azure-light text-azure text-xs font-semibold rounded-full border border-azure/20';
+                    }}
+                }}
+            }}
+
+            // Settings button
+            const settingsButton = document.getElementById('settingsButton');
+            if (settingsButton) {{
+                settingsButton.addEventListener('click', () => {{
+                    alert('Settings feature coming soon!');
+                }});
+            }}
+        }});
+
         // Artifact demo event listener
         document.addEventListener('DOMContentLoaded', () => {{
             const vannaChat = document.querySelector('vanna-chat');
@@ -283,34 +351,17 @@ def get_index_html(
                 // Add artifact event listener to demonstrate external rendering
                 vannaChat.addEventListener('artifact-opened', (event) => {{
                     const {{ artifactId, type, title, trigger }} = event.detail;
-
-                    console.log('🎨 Artifact Event:', {{ artifactId, type, title, trigger }});
-
-                    // For demo: open all artifacts externally
-                    setTimeout(() => {{
-                        const newWindow = window.open('', '_blank', 'width=900,height=700');
-                        if (newWindow) {{
-                            newWindow.document.write(event.detail.getStandaloneHTML());
-                            newWindow.document.close();
-                            newWindow.document.title = title || 'Vanna Artifact';
-                            console.log(`📱 Opened ${{title}} in new window`);
-                        }}
-                    }}, 100);
-
-                    // Prevent default in-chat rendering
-                    event.detail.preventDefault();
-                    console.log('✋ Showing placeholder in chat instead of full artifact');
+                    console.log('Artifact Event:', {{ artifactId, type, title, trigger }});
                 }});
-
-                console.log('🎯 Artifact demo mode: All artifacts will open externally');
             }}
         }});
 
         // Fallback if web component doesn't load
         if (!customElements.get('vanna-chat')) {{
             setTimeout(() => {{
-                if (!customElements.get('vanna-chat')) {{
-                    document.querySelector('vanna-chat').innerHTML = `
+                const vannaChat = document.querySelector('vanna-chat');
+                if (vannaChat && !customElements.get('vanna-chat')) {{
+                    vannaChat.innerHTML = `
                         <div class="p-10 text-center text-gray-600">
                             <h3 class="text-xl font-semibold mb-2">Vanna Chat Component</h3>
                             <p class="mb-2">Web component failed to load. Please check your connection.</p>
