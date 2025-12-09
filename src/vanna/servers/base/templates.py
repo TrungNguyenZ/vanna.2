@@ -34,7 +34,7 @@ def get_index_html(
     cdn_url: str = "https://img.vanna.ai/vanna-components.js",
     api_base_url: str = "",
 ) -> str:
-    """Generate index HTML with configurable component loading.
+    """Generate index HTML with custom UI.
 
     Args:
         dev_mode: If True, load components from local static files
@@ -45,8 +45,6 @@ def get_index_html(
     Returns:
         Complete HTML page as string
     """
-    component_script = get_vanna_component_script(dev_mode, static_path, cdn_url)
-
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,6 +53,8 @@ def get_index_html(
     <title>AI Data Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         window.FontAwesomeConfig = {{ autoReplaceSvg: 'nest' }};
         tailwind.config = {{
@@ -92,7 +92,6 @@ def get_index_html(
             }}
         }}
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {{ font-family: 'Inter', sans-serif; background-color: #F7F9FB; color: #1A1A1A; }}
@@ -105,24 +104,7 @@ def get_index_html(
         .typing-dot:nth-child(1) {{ animation-delay: -0.32s; }}
         .typing-dot:nth-child(2) {{ animation-delay: -0.16s; }}
         @keyframes typing {{ 0%, 80%, 100% {{ transform: scale(0); }} 40% {{ transform: scale(1); }} }}
-        
-        /* Hide default vanna-chat styling and integrate into layout */
-        vanna-chat {{
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-        }}
-        
-        /* Override vanna-chat internal styles to match new design */
-        vanna-chat::part(header) {{
-            display: none !important;
-        }}
     </style>
-    {component_script}
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
@@ -136,53 +118,29 @@ def get_index_html(
         </div>
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-full border border-white/10 backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-soft-green shadow-[0_0_8px_rgba(71,201,126,0.6)]" id="statusIndicator"></span>
-                <span class="text-xs text-white/90 font-medium" id="statusText">Connected</span>
+                <span class="w-2 h-2 rounded-full bg-soft-green shadow-[0_0_8px_rgba(71,201,126,0.6)]"></span>
+                <span class="text-xs text-white/90 font-medium">Connected</span>
             </div>
-            <button class="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors" id="settingsButton">
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
                 <i class="fa-solid fa-gear"></i>
             </button>
-            <button class="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors" id="logoutButtonHeader">
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </button>
         </div>
     </header>
 
-    <!-- Login Form (shown by default) -->
-    <div id="loginContainer" class="flex-1 flex items-center justify-center p-6">
-        <div class="max-w-md w-full bg-white rounded-xl shadow-soft border border-soft-border p-8">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-semibold text-gray-900 mb-2">Login to Continue</h2>
-                <p class="text-sm text-soft-text">Select your email to access the chat</p>
-            </div>
-            <div class="mb-5">
-                <label for="emailInput" class="block mb-2 text-sm font-medium text-gray-700">Email Address</label>
-                <select id="emailInput" class="w-full px-4 py-3 text-sm border border-soft-border rounded-lg focus:outline-none focus:ring-2 focus:ring-azure focus:border-transparent bg-white">
-                    <option value="">Select an email...</option>
-                    <option value="admin@example.com">admin@example.com</option>
-                    <option value="user@example.com">user@example.com</option>
-                </select>
-            </div>
-            <button id="loginButton" class="w-full px-4 py-3 bg-navy text-white text-sm font-medium rounded-lg hover:bg-azure transition disabled:bg-gray-400 disabled:cursor-not-allowed">
-                Continue
-            </button>
-            <div class="mt-5 p-3 bg-azure-light border-l-4 border-azure rounded text-xs text-gray-700 leading-relaxed">
-                <strong>Demo Mode:</strong> This is a frontend-only authentication demo. Your email will be stored as a cookie.
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Layout (hidden by default) -->
-    <div id="mainLayout" class="flex flex-1 overflow-hidden hidden">
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
         
         <!-- Main Content Area -->
         <main id="main-content" class="flex-1 flex flex-col relative min-w-0">
             
             <!-- Scrollable Content -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="flex-1 overflow-y-auto p-6 space-y-6" id="scroll-container">
                 
                 <!-- System Status Card -->
-                <div id="system-status-card" class="bg-white rounded-xl shadow-soft border border-soft-border p-5">
+                <div id="system-status-card" class="bg-white rounded-xl shadow-soft border border-soft-border p-5 animate-fade-in-up">
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-soft-green/10 flex items-center justify-center text-soft-green">
@@ -193,7 +151,7 @@ def get_index_html(
                                 <p class="text-sm text-soft-text">All data pipelines are active and synchronized.</p>
                             </div>
                         </div>
-                        <span class="px-3 py-1 bg-soft-green/10 text-soft-green text-xs font-semibold rounded-full border border-soft-green/20" id="userRoleBadge">USER VIEW</span>
+                        <span class="px-3 py-1 bg-soft-green/10 text-soft-green text-xs font-semibold rounded-full border border-soft-green/20">ADMIN VIEW</span>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -224,15 +182,39 @@ def get_index_html(
                     </div>
                 </div>
 
-                <!-- Chat Container -->
-                <div class="bg-white rounded-xl shadow-card border border-soft-border overflow-hidden" style="min-height: 500px;">
-                    <vanna-chat
-                        api-base="{api_base_url}"
-                        sse-endpoint="{api_base_url}/api/vanna/v2/chat_sse"
-                        ws-endpoint="{api_base_url}/api/vanna/v2/chat_websocket"
-                        poll-endpoint="{api_base_url}/api/vanna/v2/chat_poll"
-                        style="height: 100%; display: flex; flex-direction: column;">
-                    </vanna-chat>
+                <!-- Chat Interaction Area -->
+                <div id="chat-stream" class="space-y-6 pb-4">
+                    <!-- Messages will be injected here -->
+                </div>
+            </div>
+
+            <!-- Bottom Input Section -->
+            <div class="p-6 bg-white/80 backdrop-blur-md border-t border-soft-border z-10 sticky bottom-0">
+                <div class="max-w-4xl mx-auto space-y-3">
+                    
+                    <!-- Status Indicator -->
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                             <div class="w-2 h-2 rounded-full bg-soft-green animate-pulse"></div>
+                             <span class="text-xs font-semibold text-soft-text uppercase tracking-wide">Assistant Ready</span>
+                        </div>
+                        <span class="text-xs text-gray-400">Press Enter to send, Shift+Enter for new line</span>
+                    </div>
+
+                    <!-- Input Box -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-azure to-purple-400 rounded-xl opacity-0 group-focus-within:opacity-20 transition-opacity duration-300 -m-[2px]"></div>
+                        <div class="relative flex items-center bg-white border border-soft-border rounded-xl shadow-sm focus-within:shadow-md focus-within:border-azure transition-all overflow-hidden">
+                            <input type="text" 
+                                id="user-input"
+                                placeholder="Ask a question about your data..." 
+                                class="w-full h-14 pl-5 pr-14 text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none text-[15px]"
+                            >
+                            <button id="send-button" class="absolute right-2 w-10 h-10 rounded-lg bg-navy hover:bg-azure text-white flex items-center justify-center transition-all transform active:scale-95 shadow-md">
+                                <i class="fa-solid fa-paper-plane text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -243,8 +225,8 @@ def get_index_html(
                 <h3 class="font-semibold text-gray-800">Session History</h3>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-4 space-y-3" id="historyContainer">
-                <!-- History items will be populated by JavaScript -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-3" id="history-container">
+                <!-- History items -->
             </div>
 
             <div class="p-4 border-t border-soft-border bg-soft-gray/30">
@@ -257,122 +239,258 @@ def get_index_html(
     </div>
 
     <script>
-        // Cookie helpers
-        const getCookie = (name) => {{
-            const value = `; ${{document.cookie}}`;
-            const parts = value.split(`; ${{name}}=`);
-            return parts.length === 2 ? parts.pop().split(';').shift() : null;
-        }};
+        const API_BASE_URL = "{api_base_url}";
+        const chatStream = document.getElementById('chat-stream');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const scrollContainer = document.getElementById('scroll-container');
 
-        const setCookie = (name, value) => {{
-            const expires = new Date(Date.now() + 365 * 864e5).toUTCString();
-            document.cookie = `${{name}}=${{value}}; expires=${{expires}}; path=/; SameSite=Lax`;
-        }};
-
-        const deleteCookie = (name) => {{
-            document.cookie = `${{name}}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        }};
-
-        // Login/Logout functionality
-        document.addEventListener('DOMContentLoaded', () => {{
-            const email = getCookie('vanna_email');
-            const loginContainer = document.getElementById('loginContainer');
-            const mainLayout = document.getElementById('mainLayout');
-            const loginButton = document.getElementById('loginButton');
-            const emailInput = document.getElementById('emailInput');
-            const logoutButtonHeader = document.getElementById('logoutButtonHeader');
-            const userRoleBadge = document.getElementById('userRoleBadge');
-
-            // Check if already logged in
-            if (email) {{
-                loginContainer.classList.add('hidden');
-                mainLayout.classList.remove('hidden');
-                updateUserRole(email);
-            }}
-
-            // Login button
-            if (loginButton) {{
-                loginButton.addEventListener('click', () => {{
-                    const email = emailInput.value.trim();
-                    if (!email) {{
-                        alert('Please select an email address');
-                        return;
-                    }}
-                    setCookie('vanna_email', email);
-                    loginContainer.classList.add('hidden');
-                    mainLayout.classList.remove('hidden');
-                    updateUserRole(email);
-                }});
-            }}
-
-            // Logout button in header
-            if (logoutButtonHeader) {{
-                logoutButtonHeader.addEventListener('click', () => {{
-                    deleteCookie('vanna_email');
-                    loginContainer.classList.remove('hidden');
-                    mainLayout.classList.add('hidden');
-                    if (emailInput) emailInput.value = '';
-                }});
-            }}
-
-            // Enter key
-            if (emailInput) {{
-                emailInput.addEventListener('keypress', (e) => {{
-                    if (e.key === 'Enter' && loginButton) loginButton.click();
-                }});
-            }}
-
-            function updateUserRole(email) {{
-                if (userRoleBadge) {{
-                    if (email === 'admin@example.com') {{
-                        userRoleBadge.textContent = 'ADMIN VIEW';
-                        userRoleBadge.className = 'px-3 py-1 bg-soft-green/10 text-soft-green text-xs font-semibold rounded-full border border-soft-green/20';
-                    }} else {{
-                        userRoleBadge.textContent = 'USER VIEW';
-                        userRoleBadge.className = 'px-3 py-1 bg-azure-light text-azure text-xs font-semibold rounded-full border border-azure/20';
-                    }}
-                }}
-            }}
-
-            // Settings button
-            const settingsButton = document.getElementById('settingsButton');
-            if (settingsButton) {{
-                settingsButton.addEventListener('click', () => {{
-                    alert('Settings feature coming soon!');
-                }});
-            }}
-        }});
-
-        // Artifact demo event listener
-        document.addEventListener('DOMContentLoaded', () => {{
-            const vannaChat = document.querySelector('vanna-chat');
-
-            if (vannaChat) {{
-                // Add artifact event listener to demonstrate external rendering
-                vannaChat.addEventListener('artifact-opened', (event) => {{
-                    const {{ artifactId, type, title, trigger }} = event.detail;
-                    console.log('Artifact Event:', {{ artifactId, type, title, trigger }});
-                }});
-            }}
-        }});
-
-        // Fallback if web component doesn't load
-        if (!customElements.get('vanna-chat')) {{
-            setTimeout(() => {{
-                const vannaChat = document.querySelector('vanna-chat');
-                if (vannaChat && !customElements.get('vanna-chat')) {{
-                    vannaChat.innerHTML = `
-                        <div class="p-10 text-center text-gray-600">
-                            <h3 class="text-xl font-semibold mb-2">Vanna Chat Component</h3>
-                            <p class="mb-2">Web component failed to load. Please check your connection.</p>
-                            <p class="text-sm text-gray-400">
-                                {("Loading from: local static assets" if dev_mode else f"Loading from: {cdn_url}")}
-                            </p>
-                        </div>
-                    `;
-                }}
-            }}, 2000);
+        function scrollToBottom() {{
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
         }}
+
+        function appendUserMessage(text) {{
+            const div = document.createElement('div');
+            div.className = 'flex justify-end gap-3 group animate-fade-in-up';
+            div.innerHTML = `
+                <div class="max-w-2xl">
+                    <div class="bg-white border border-soft-border rounded-2xl rounded-tr-sm p-4 shadow-sm">
+                        <p class="text-[15px] text-gray-800 leading-relaxed">${{text}}</p>
+                    </div>
+                    <div class="flex justify-end mt-1 pr-1">
+                        <span class="text-xs text-gray-400">Just now</span>
+                    </div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center shrink-0 shadow-sm mt-auto mb-6">
+                    <i class="fa-solid fa-user text-xs"></i>
+                </div>
+            `;
+            chatStream.appendChild(div);
+            scrollToBottom();
+        }}
+
+        function createAIMessageContainer() {{
+            const id = 'msg-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'flex gap-4 animate-fade-in-up';
+            div.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-azure to-[#00D4FF] flex items-center justify-center shrink-0 shadow-md mt-1">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1 max-w-3xl space-y-4" id="${{id}}">
+                    <!-- Content will be appended here -->
+                </div>
+            `;
+            chatStream.appendChild(div);
+            return id;
+        }}
+
+        function appendTextToContainer(containerId, text) {{
+            const container = document.getElementById(containerId);
+            // Check if last element is a text block
+            let textBlock = container.querySelector('.text-response-block:last-child');
+            
+            if (!textBlock) {{
+                textBlock = document.createElement('div');
+                textBlock.className = 'bg-azure-light border border-azure/20 rounded-2xl rounded-tl-sm p-5 shadow-sm text-response-block';
+                textBlock.innerHTML = '<p class="text-[15px] text-gray-800 leading-relaxed markdown-body"></p>';
+                container.appendChild(textBlock);
+            }}
+            
+            const p = textBlock.querySelector('p');
+            // Simple markdown parsing using marked.js
+            p.innerHTML = marked.parse(text);
+            scrollToBottom();
+        }}
+
+        function appendSQLToContainer(containerId, sql) {{
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'bg-white border border-soft-border rounded-xl shadow-sm overflow-hidden group mt-4';
+            div.innerHTML = `
+                <div class="bg-soft-gray px-4 py-2 border-b border-soft-border flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-code text-azure text-xs"></i>
+                        <span class="text-xs font-semibold text-soft-text uppercase tracking-wider">Generated SQL</span>
+                    </div>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button class="text-gray-400 hover:text-azure transition-colors" onclick="navigator.clipboard.writeText(this.parentElement.parentElement.nextElementSibling.innerText)"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                </div>
+                <div class="p-4 relative">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-azure"></div>
+                    <pre class="font-mono text-sm text-gray-700 overflow-x-auto"><code>${{sql}}</code></pre>
+                </div>
+            `;
+            container.appendChild(div);
+            scrollToBottom();
+        }}
+
+        function appendChartToContainer(containerId, plotData) {{
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'bg-white border border-soft-border rounded-xl shadow-card p-1 mt-4';
+            const chartId = 'chart-' + Date.now();
+            div.innerHTML = `
+                <div class="p-4 flex items-center justify-between border-b border-soft-border border-dashed">
+                     <h3 class="text-sm font-semibold text-gray-800">Visualization</h3>
+                </div>
+                <div id="${{chartId}}" class="h-[300px] w-full"></div>
+            `;
+            container.appendChild(div);
+            
+            try {{
+                // plotData is already an object if passed from rich component data
+                Plotly.newPlot(chartId, plotData.data, plotData.layout);
+            }} catch (e) {{
+                console.error('Error plotting chart:', e);
+            }}
+            scrollToBottom();
+        }}
+
+        function appendTableToContainer(containerId, tableData) {{
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'bg-white border border-soft-border rounded-xl shadow-sm overflow-hidden group mt-4 overflow-x-auto';
+            
+            // Basic table structure
+            let html = `
+                <div class="bg-soft-gray px-4 py-2 border-b border-soft-border flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-table text-azure text-xs"></i>
+                        <span class="text-xs font-semibold text-soft-text uppercase tracking-wider">Data Result</span>
+                    </div>
+                </div>
+                <div class="p-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-soft-border">
+            `;
+            
+            // Headers
+            if (tableData.columns) {{
+                tableData.columns.forEach(col => {{
+                    html += `<th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap">${{col}}</th>`;
+                }});
+            }}
+            
+            html += `       </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+            `;
+            
+            // Rows
+            if (tableData.data) {{
+                tableData.data.forEach(row => {{
+                    html += `<tr class="hover:bg-gray-50/50 transition-colors">`;
+                    tableData.columns.forEach(col => {{
+                        const cellData = row[col] !== undefined ? row[col] : '';
+                        html += `<td class="px-4 py-2.5 text-sm text-gray-700 whitespace-nowrap">${{cellData}}</td>`;
+                    }});
+                    html += `</tr>`;
+                }});
+            }}
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            div.innerHTML = html;
+            container.appendChild(div);
+            scrollToBottom();
+        }}
+
+        async function sendMessage() {{
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            userInput.value = '';
+            appendUserMessage(text);
+            
+            const containerId = createAIMessageContainer();
+            
+            try {{
+                const response = await fetch(`${{API_BASE_URL}}/api/vanna/v2/chat_sse`, {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json'
+                    }},
+                    body: JSON.stringify({{
+                        message: text
+                    }})
+                }});
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {{
+                    const {{ value, done }} = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, {{ stream: true }});
+                    buffer += chunk;
+                    
+                    const lines = buffer.split('\\n\\n');
+                    buffer = lines.pop(); // Keep the last partial line
+                    
+                    for (const line of lines) {{
+                        if (line.startsWith('data: ')) {{
+                            const dataStr = line.slice(6);
+                            if (dataStr === '[DONE]') continue;
+                            
+                            try {{
+                                const chunk = JSON.parse(dataStr);
+                                console.log('Received chunk:', chunk);
+
+                                if (chunk.rich) {{
+                                    const component = chunk.rich;
+                                    const type = component.type;
+                                    const data = component.data;
+
+                                    if (type === 'text') {{
+                                        if (data && data.content) {{
+                                            appendTextToContainer(containerId, data.content);
+                                        }}
+                                    }} else if (type === 'code_block' || (type === 'text' && data.code_language === 'sql')) {{
+                                        if (data && data.content) {{
+                                            if (data.code_language === 'sql') {{
+                                                 appendSQLToContainer(containerId, data.content);
+                                            }} else {{
+                                                 appendTextToContainer(containerId, data.content);
+                                            }}
+                                        }}
+                                    }} else if (type === 'chart' || type === 'plotly') {{
+                                        if (data) {{
+                                            appendChartToContainer(containerId, data);
+                                        }}
+                                    }} else if (type === 'dataframe' || type === 'table') {{
+                                        if (data && data.data && data.columns) {{
+                                            appendTableToContainer(containerId, data);
+                                        }}
+                                    }}
+                                }} else if (chunk.type === 'error') {{
+                                     appendTextToContainer(containerId, `Error: ${{chunk.data.message}}`);
+                                }}
+                            }} catch (e) {{
+                                console.error('Error parsing SSE data:', e);
+                            }}
+                        }}
+                    }}
+                }}
+            }} catch (e) {{
+                console.error('Error sending message:', e);
+                appendTextToContainer(containerId, 'Error: Could not connect to the server.');
+            }}
+        }}
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {{
+            if (e.key === 'Enter') sendMessage();
+        }});
+
     </script>
 </body>
 </html>"""
