@@ -134,7 +134,9 @@ class Config:
             return f"mysql+pymysql://{self.mysql_user}:{self.mysql_password}@{self.mysql_host}:{self.mysql_port}/{self.mysql_database}"
         elif self.db_type == "mssql":
             # ODBC connection string for MSSQL
-            return f"DRIVER={{{self.mssql_driver}}};SERVER={self.mssql_host},{self.mssql_port};DATABASE={self.mssql_database};UID={self.mssql_user};PWD={self.mssql_password}"
+            # TrustServerCertificate=yes: Trust the server certificate (bypass SSL verification)
+            # Encrypt=yes: Enable encryption for the connection
+            return f"DRIVER={{{self.mssql_driver}}};SERVER={self.mssql_host},{self.mssql_port};DATABASE={self.mssql_database};UID={self.mssql_user};PWD={self.mssql_password};Encrypt=yes;TrustServerCertificate=yes;Connection Timeout=30"
         return None
 
 

@@ -41,7 +41,7 @@ def create_llm_service(config):
             model=llm_config["model"]
         )
     elif llm_config["provider"] == "gemini":
-        from vanna.integrations.gemini import GeminiLlmService
+        from vanna.integrations.google import GeminiLlmService
         if not llm_config["api_key"]:
             raise ValueError("GEMINI_API_KEY is not set in .env file")
         return GeminiLlmService(
@@ -104,18 +104,46 @@ def create_agent(config):
     user_resolver = SimpleUserResolver()
     agent_memory = DemoAgentMemory(max_items=1000)
     
-    # Register SQL execution tool
+    # Create shared FileSystem for SQL tool (to save CSV) and visualization tool (to read CSV)
+    from vanna.tools import LocalFileSystem
+    file_system = LocalFileSystem(working_directory="./data_storage")
+    
+    # Register SQL execution tool with FileSystem (so it can save CSV files)
     from vanna.tools import RunSqlTool
-    tool_registry.register(RunSqlTool(sql_runner=sql_runner))
+    sql_tool = RunSqlTool(sql_runner=sql_runner, file_system=file_system)
+    tool_registry.register_local_tool(sql_tool, access_groups=[])
+    
+    # Register visualization tool to create charts from CSV files
+    from vanna.tools import VisualizeDataTool
+    viz_tool = VisualizeDataTool(file_system=file_system)
+    tool_registry.register_local_tool(viz_tool, access_groups=[])
+    print("✓ Visualization tool đã được đăng ký - Agent có thể tạo biểu đồ từ kết quả SQL")
+    
+    # Use FileSystemConversationStore to persist conversation history
+    # This allows the agent to understand context from previous messages in the conversation
+    from vanna.integrations.local import FileSystemConversationStore
+    conversation_store = FileSystemConversationStore(base_dir="./conversations")
+    
+    # SQL Error Recovery Strategy: Allow automatic retry with new SQL when SQL errors occur
+    from sql_error_recovery import SqlErrorRecoveryStrategy
+    sql_error_recovery = SqlErrorRecoveryStrategy(max_sql_retries=3)
+    
+    # Custom system prompt builder with SQL error retry instructions
+    from custom_system_prompt import SqlErrorRetrySystemPromptBuilder
+    system_prompt_builder = SqlErrorRetrySystemPromptBuilder()
     
     return Agent(
         llm_service=llm_service,
         tool_registry=tool_registry,
         user_resolver=user_resolver,
         agent_memory=agent_memory,
+        conversation_store=conversation_store,  # Enable conversation persistence
+        error_recovery_strategy=sql_error_recovery,  # Enable SQL error recovery
+        system_prompt_builder=system_prompt_builder,  # Custom system prompt with SQL error retry
         config=AgentConfig(
             stream_responses=True,
             include_thinking_indicators=True,
+            auto_save_conversations=True,  # Automatically save conversation history
         ),
     )
 
