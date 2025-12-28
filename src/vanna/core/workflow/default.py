@@ -215,16 +215,16 @@ class DefaultWorkflowHandler(WorkflowHandler):
         elif analysis["is_complete"]:
             title = "Admin: System Ready"
             content = "**🔒 Admin View** - You have admin privileges and will see additional system information.\n\n**Vanna AI** is fully configured and ready.\n\n"
-            content += "**Setup:** SQL ✓ | Memory ✓ | Visualization ✓"
+            content += "**Setup:** SQL [OK] | Memory [OK] | Visualization [OK]"
             status = "success"
             icon = "✅"
         else:
             title = "Admin: System Ready"
             content = "**🔒 Admin View** - You have admin privileges and will see additional system information.\n\n**Vanna AI** is ready to query your database.\n\n"
             setup_items = []
-            setup_items.append("SQL ✓")
-            setup_items.append("Memory ✓" if analysis["has_memory"] else "Memory ✗")
-            setup_items.append("Viz ✓" if analysis["has_viz"] else "Viz ✗")
+            setup_items.append("SQL [OK]")
+            setup_items.append("Memory [OK]" if analysis["has_memory"] else "Memory [FAIL]")
+            setup_items.append("Viz [OK]" if analysis["has_viz"] else "Viz [FAIL]")
             content += f"**Setup:** {' | '.join(setup_items)}"
             status = "warning" if not analysis["has_memory"] else "success"
             icon = "⚠️" if not analysis["has_memory"] else "✅"

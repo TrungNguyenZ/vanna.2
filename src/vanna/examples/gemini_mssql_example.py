@@ -272,13 +272,13 @@ def create_demo_agent(config: Optional[Dict[str, Any]] = None) -> "Agent":
         print(f"[info] RunSqlTool created with name: {sql_tool.name}")
         
         tool_registry.register(sql_tool)
-        print(f"[info] ✓ SQL tool '{sql_tool.name}' registered successfully")
+        print(f"[info] [OK] SQL tool '{sql_tool.name}' registered successfully")
         
         # Register visualization tool
         try:
             viz_tool = VisualizeDataTool(file_system=file_system)
             tool_registry.register(viz_tool)
-            print(f"[info] ✓ Visualization tool '{viz_tool.name}' registered successfully")
+            print(f"[info] [OK] Visualization tool '{viz_tool.name}' registered successfully")
         except ImportError:
             print("[warn] Visualization tool not available (plotly may not be installed)")
         except Exception as e:
@@ -286,9 +286,9 @@ def create_demo_agent(config: Optional[Dict[str, Any]] = None) -> "Agent":
         
         # Verify registration
         if sql_tool.name in tool_registry._tools:
-            print(f"[info] ✓ Tool '{sql_tool.name}' confirmed in registry")
+            print(f"[info] [OK] Tool '{sql_tool.name}' confirmed in registry")
         else:
-            print(f"[error] ✗ Tool '{sql_tool.name}' NOT found in registry!")
+            print(f"[error] [FAIL] Tool '{sql_tool.name}' NOT found in registry!")
             
     except Exception as e:
         print(f"[error] Failed to create or register SQL tool: {e}")

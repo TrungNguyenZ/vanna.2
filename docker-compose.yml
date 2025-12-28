@@ -1,0 +1,27 @@
+services:
+  vanna-agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: trungnguyen131/vanna-agents:latest
+    container_name: vanna-agents
+    ports:
+      - "3001:3001"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MSSQL_CONNECTION_STRING=${MSSQL_CONNECTION_STRING}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-pro}
+    volumes:
+      # Mount .env file if you want to use it
+      - ./.env:/app/.env:ro
+      # Mount data directory for persistence
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+

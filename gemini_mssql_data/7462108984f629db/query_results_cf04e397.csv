@@ -1,0 +1,16 @@
+COLUMN_NAME
+OrderID
+ProductID
+UnitPrice
+Quantity
+Discount
+ProductID
+ProductName
+SupplierID
+CategoryID
+QuantityPerUnit
+UnitPrice
+UnitsInStock
+UnitsOnOrder
+ReorderLevel
+Discontinued

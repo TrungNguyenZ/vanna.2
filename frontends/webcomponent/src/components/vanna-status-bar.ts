@@ -128,35 +128,26 @@ export class VannaStatusBar extends LitElement {
       }
 
       :host([status="idle"]) {
-        background: linear-gradient(135deg, rgba(186, 85, 211, 0.15) 0%, rgba(138, 43, 226, 0.1) 100%);
-        border-color: rgba(186, 85, 211, 0.6);
-        color: rgb(255, 255, 255);
+        background: rgba(229, 241, 255, 1);
+        border-color: rgb(47, 110, 255);
+        color: rgb(0, 51, 102);
         box-shadow: 
-          var(--vanna-shadow-xl),
-          0 0 0 2px rgba(186, 85, 211, 0.4),
-          0 0 25px rgba(186, 85, 211, 0.3),
-          0 0 50px rgba(138, 43, 226, 0.2);
-        text-shadow: 
-          0 0 10px rgba(186, 85, 211, 0.8),
-          0 0 20px rgba(186, 85, 211, 0.6),
-          0 0 30px rgba(138, 43, 226, 0.4);
-        animation: idleGlow 2s ease-in-out infinite;
+          var(--vanna-shadow-sm),
+          0 0 0 2px rgba(47, 110, 255, 0.2);
+        text-shadow: none;
+        animation: none;
       }
 
       @keyframes idleGlow {
         0%, 100% {
           box-shadow: 
-            var(--vanna-shadow-xl),
-            0 0 0 2px rgba(186, 85, 211, 0.4),
-            0 0 25px rgba(186, 85, 211, 0.3),
-            0 0 50px rgba(138, 43, 226, 0.2);
+            var(--vanna-shadow-sm),
+            0 0 0 2px rgba(47, 110, 255, 0.2);
         }
         50% {
           box-shadow: 
-            var(--vanna-shadow-2xl),
-            0 0 0 3px rgba(186, 85, 211, 0.6),
-            0 0 35px rgba(186, 85, 211, 0.5),
-            0 0 70px rgba(138, 43, 226, 0.4);
+            var(--vanna-shadow-md),
+            0 0 0 3px rgba(47, 110, 255, 0.3);
         }
       }
 
@@ -221,11 +212,10 @@ export class VannaStatusBar extends LitElement {
       }
 
       .status-indicator.idle {
-        background: linear-gradient(45deg, rgb(186, 85, 211), rgb(138, 43, 226));
+        background: rgb(47, 110, 255);
         box-shadow: 
           0 0 0 2px rgba(255, 255, 255, 0.5), 
-          0 0 12px rgba(186, 85, 211, 0.6),
-          0 0 24px rgba(138, 43, 226, 0.4);
+          0 2px 8px rgba(47, 110, 255, 0.3);
         animation: idleIndicatorPulse 2s ease-in-out infinite;
       }
 
@@ -234,15 +224,13 @@ export class VannaStatusBar extends LitElement {
           transform: scale(1);
           box-shadow: 
             0 0 0 2px rgba(255, 255, 255, 0.5), 
-            0 0 12px rgba(186, 85, 211, 0.6),
-            0 0 24px rgba(138, 43, 226, 0.4);
+            0 2px 8px rgba(47, 110, 255, 0.3);
         }
         50% {
-          transform: scale(1.15);
+          transform: scale(1.1);
           box-shadow: 
             0 0 0 3px rgba(255, 255, 255, 0.7), 
-            0 0 18px rgba(186, 85, 211, 0.8),
-            0 0 36px rgba(138, 43, 226, 0.6);
+            0 4px 12px rgba(47, 110, 255, 0.4);
         }
       }
 
@@ -266,12 +254,8 @@ export class VannaStatusBar extends LitElement {
       :host([status="idle"]) .status-text {
         font-weight: 700;
         font-size: 16px;
-        color: rgb(255, 255, 255);
-        text-shadow: 
-          0 0 12px rgba(186, 85, 211, 1),
-          0 0 24px rgba(186, 85, 211, 0.8),
-          0 0 36px rgba(138, 43, 226, 0.6),
-          0 0 48px rgba(138, 43, 226, 0.4);
+        color: rgb(0, 51, 102);
+        text-shadow: none;
         letter-spacing: 0.02em;
       }
 
@@ -284,9 +268,9 @@ export class VannaStatusBar extends LitElement {
       }
 
       :host([status="idle"]) .status-detail {
-        color: rgba(200, 180, 255, 0.95);
+        color: rgb(93, 107, 130);
         font-weight: 600;
-        text-shadow: 0 0 8px rgba(186, 85, 211, 0.5);
+        text-shadow: none;
       }
 
       .status-actions {

@@ -132,23 +132,23 @@ export class EChartsChart extends LitElement {
   private _applyTheme(option: EChartsOption): EChartsOption {
     const isDark = this.theme === 'dark';
     
-    // Default dark theme colors (purple/neon theme)
+    // Default Navy/Azure theme colors
     const darkColors = [
-      '#BA55D3', // MediumOrchid
-      '#8A2BE2', // BlueViolet
-      '#FF00FF', // Magenta
-      '#9370DB', // MediumPurple
-      '#DA70D6', // Orchid
-      '#BA55D3', // MediumOrchid
-      '#8A2BE2', // BlueViolet
+      '#2F6EFF', // Azure
+      '#00D4FF', // Azure Hover
+      '#5A8DFF', // Azure Light
+      '#003366', // Navy
+      '#162033', // Navy Light
+      '#2F6EFF', // Azure
+      '#00D4FF', // Azure Hover
     ];
 
     const lightColors = [
-      '#8A2BE2', // BlueViolet
-      '#BA55D3', // MediumOrchid
-      '#9370DB', // MediumPurple
-      '#DA70D6', // Orchid
-      '#FF00FF', // Magenta
+      '#2F6EFF', // Azure
+      '#00D4FF', // Azure Hover
+      '#5A8DFF', // Azure Light
+      '#003366', // Navy
+      '#47C97E', // Soft Green
     ];
 
     const mergedOption: EChartsOption = {
@@ -164,7 +164,7 @@ export class EChartsChart extends LitElement {
       tooltip: {
         trigger: 'axis',
         backgroundColor: isDark ? 'rgba(20, 20, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-        borderColor: isDark ? 'rgba(186, 85, 211, 0.8)' : 'rgba(138, 43, 226, 0.8)',
+        borderColor: isDark ? 'rgba(47, 110, 255, 0.8)' : 'rgba(47, 110, 255, 0.8)',
         borderWidth: 2,
         textStyle: {
           color: isDark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)',
@@ -172,7 +172,7 @@ export class EChartsChart extends LitElement {
         axisPointer: {
           type: 'cross',
           crossStyle: {
-            color: isDark ? 'rgba(186, 85, 211, 0.8)' : 'rgba(138, 43, 226, 0.8)',
+            color: isDark ? 'rgba(47, 110, 255, 0.8)' : 'rgba(47, 110, 255, 0.8)',
           },
         },
         ...option.tooltip,
@@ -197,7 +197,7 @@ export class EChartsChart extends LitElement {
         ? option.xAxis.map((axis: any) => ({
             axisLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.5)' : 'rgba(138, 43, 226, 0.5)',
+                color: isDark ? 'rgba(47, 110, 255, 0.5)' : 'rgba(47, 110, 255, 0.5)',
               },
             },
             axisLabel: {
@@ -205,7 +205,7 @@ export class EChartsChart extends LitElement {
             },
             splitLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.1)' : 'rgba(138, 43, 226, 0.1)',
+                color: isDark ? 'rgba(47, 110, 255, 0.1)' : 'rgba(47, 110, 255, 0.1)',
               },
             },
             ...axis,
@@ -213,7 +213,7 @@ export class EChartsChart extends LitElement {
         : option.xAxis ? {
             axisLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.5)' : 'rgba(138, 43, 226, 0.5)',
+                color: isDark ? 'rgba(47, 110, 255, 0.5)' : 'rgba(47, 110, 255, 0.5)',
               },
             },
             axisLabel: {
@@ -221,7 +221,7 @@ export class EChartsChart extends LitElement {
             },
             splitLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.1)' : 'rgba(138, 43, 226, 0.1)',
+                color: isDark ? 'rgba(47, 110, 255, 0.1)' : 'rgba(47, 110, 255, 0.1)',
               },
             },
             ...option.xAxis,
@@ -231,7 +231,7 @@ export class EChartsChart extends LitElement {
         ? option.yAxis.map((axis: any) => ({
             axisLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.5)' : 'rgba(138, 43, 226, 0.5)',
+                color: isDark ? 'rgba(47, 110, 255, 0.5)' : 'rgba(47, 110, 255, 0.5)',
               },
             },
             axisLabel: {
@@ -239,7 +239,7 @@ export class EChartsChart extends LitElement {
             },
             splitLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.1)' : 'rgba(138, 43, 226, 0.1)',
+                color: isDark ? 'rgba(47, 110, 255, 0.1)' : 'rgba(47, 110, 255, 0.1)',
               },
             },
             ...axis,
@@ -247,7 +247,7 @@ export class EChartsChart extends LitElement {
         : option.yAxis ? {
             axisLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.5)' : 'rgba(138, 43, 226, 0.5)',
+                color: isDark ? 'rgba(47, 110, 255, 0.5)' : 'rgba(47, 110, 255, 0.5)',
               },
             },
             axisLabel: {
@@ -255,7 +255,7 @@ export class EChartsChart extends LitElement {
             },
             splitLine: {
               lineStyle: {
-                color: isDark ? 'rgba(186, 85, 211, 0.1)' : 'rgba(138, 43, 226, 0.1)',
+                color: isDark ? 'rgba(47, 110, 255, 0.1)' : 'rgba(47, 110, 255, 0.1)',
               },
             },
             ...option.yAxis,

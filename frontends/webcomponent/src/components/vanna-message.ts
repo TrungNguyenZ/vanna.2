@@ -45,21 +45,21 @@ export class VannaMessage extends LitElement {
       }
 
       .message.assistant {
-        background: var(--vanna-background-root);
-        border: 1px solid var(--vanna-outline-dimmer);
-        color: var(--vanna-foreground-default);
-        box-shadow: var(--vanna-shadow-sm);
+        background: rgba(229, 241, 255, 0.4);
+        border: 1.5px solid rgba(47, 110, 255, 0.2);
+        color: rgb(0, 51, 102);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.08);
         border-radius: var(--vanna-chat-bubble-radius) var(--vanna-chat-bubble-radius) var(--vanna-chat-bubble-radius) var(--vanna-space-2);
       }
 
       .message.user {
         margin-left: auto;
         max-width: min(80%, 500px);
-        background: linear-gradient(135deg, var(--vanna-accent-primary-stronger) 0%, var(--vanna-accent-primary-default) 100%);
-        color: white;
-        box-shadow: var(--vanna-shadow-md);
+        background: rgb(47, 110, 255);
+        color: rgb(255, 255, 255);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.25);
         border-radius: var(--vanna-chat-bubble-radius) var(--vanna-chat-bubble-radius) var(--vanna-space-2) var(--vanna-chat-bubble-radius);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.15);
       }
 
       .message:hover {
@@ -67,12 +67,14 @@ export class VannaMessage extends LitElement {
       }
 
       .message.assistant:hover {
-        box-shadow: var(--vanna-shadow-md);
-        border-color: var(--vanna-outline-hover);
+        background: rgba(229, 241, 255, 0.6);
+        box-shadow: 0 4px 12px rgba(47, 110, 255, 0.12);
+        border-color: rgba(47, 110, 255, 0.4);
       }
 
       .message.user:hover {
-        box-shadow: var(--vanna-shadow-lg);
+        box-shadow: 0 4px 12px rgba(47, 110, 255, 0.35);
+        background: rgb(0, 212, 255);
       }
 
       .message-content {
@@ -81,24 +83,49 @@ export class VannaMessage extends LitElement {
         letter-spacing: 0.01em;
         white-space: pre-wrap;
         font-weight: 400;
+        line-height: 1.7;
+      }
+      
+      .message.assistant .message-content {
+        color: rgb(0, 51, 102);
+      }
+      
+      .message.user .message-content {
+        color: rgb(255, 255, 255);
+        font-weight: 400;
       }
 
       .message-content a {
-        color: inherit;
+        color: rgb(47, 110, 255);
         font-weight: 500;
         text-decoration: underline;
         text-decoration-thickness: 1px;
         text-underline-offset: 2px;
-        opacity: 0.9;
+        opacity: 1;
+      }
+      
+      .message.assistant .message-content a {
+        color: rgb(47, 110, 255);
+      }
+      
+      .message.assistant .message-content a:hover {
+        color: rgb(0, 212, 255);
       }
 
       .message-content code {
         font-family: var(--vanna-font-family-mono);
-        background: var(--vanna-background-higher);
+        background: rgba(255, 255, 255, 0.8);
         padding: 2px 6px;
         border-radius: var(--vanna-border-radius-sm);
         font-size: 13px;
-        border: 1px solid var(--vanna-outline-dimmer);
+        border: 1px solid rgba(47, 110, 255, 0.2);
+        color: rgb(0, 51, 102);
+      }
+      
+      .message.assistant .message-content code {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(47, 110, 255, 0.3);
+        color: rgb(0, 51, 102);
       }
 
       .message.user .message-content code {
@@ -129,11 +156,12 @@ export class VannaMessage extends LitElement {
 
       .message.assistant .message-timestamp {
         align-self: flex-start;
-        color: var(--vanna-foreground-dimmest);
+        color: rgb(154, 166, 184);
+        opacity: 0.8;
       }
 
       .message.assistant .message-timestamp::before {
-        background: var(--vanna-accent-primary-default);
+        background: rgb(47, 110, 255);
       }
 
       .message.user .message-timestamp {
@@ -146,10 +174,20 @@ export class VannaMessage extends LitElement {
       }
 
       :host([theme="dark"]) .message.assistant {
-        background: var(--vanna-background-higher);
-        border: 1px solid var(--vanna-outline-default);
-        color: var(--vanna-foreground-default);
-        box-shadow: var(--vanna-shadow-md);
+        background: rgba(47, 110, 255, 0.15);
+        border: 1.5px solid rgba(47, 110, 255, 0.3);
+        color: rgb(255, 255, 255);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.15);
+      }
+      
+      :host([theme="dark"]) .message.assistant .message-content {
+        color: rgb(255, 255, 255);
+      }
+      
+      :host([theme="dark"]) .message.assistant:hover {
+        background: rgba(47, 110, 255, 0.25);
+        border-color: rgba(47, 110, 255, 0.5);
+        box-shadow: 0 4px 12px rgba(47, 110, 255, 0.2);
       }
 
       :host([theme="dark"]) .message.assistant .message-content code {
@@ -166,9 +204,14 @@ export class VannaMessage extends LitElement {
       }
 
       :host([theme="dark"]) .message.user {
-        background: linear-gradient(135deg, var(--vanna-accent-primary-stronger) 0%, var(--vanna-accent-primary-default) 100%);
-        color: white;
-        box-shadow: var(--vanna-shadow-lg);
+        background: rgb(47, 110, 255);
+        color: rgb(255, 255, 255);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.3);
+      }
+      
+      :host([theme="dark"]) .message.user:hover {
+        background: rgb(0, 212, 255);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
       }
 
       :host([theme="dark"]) .message.user .message-content code {

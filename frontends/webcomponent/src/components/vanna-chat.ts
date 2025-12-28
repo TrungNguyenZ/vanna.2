@@ -26,7 +26,7 @@ export class VannaChat extends LitElement {
         font-family: var(--vanna-font-family-default);
         --chat-primary: var(--vanna-accent-primary-default);
         --chat-primary-stronger: var(--vanna-accent-primary-stronger);
-        --chat-primary-foreground: rgb(200, 180, 255);
+        --chat-primary-foreground: rgb(255, 255, 255);
         --chat-accent-soft: var(--vanna-accent-primary-subtle);
         --chat-outline: var(--vanna-outline-default);
         --chat-surface: var(--vanna-background-root);
@@ -165,9 +165,9 @@ export class VannaChat extends LitElement {
 
       .chat-header {
         padding: var(--vanna-space-6) var(--vanna-space-7);
-        background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(186, 85, 211, 0.2) 50%, rgba(255, 0, 255, 0.15) 100%);
-        border-bottom: 2px solid rgba(186, 85, 211, 0.5);
-        box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 30px rgba(186, 85, 211, 0.1);
+        background: linear-gradient(135deg, rgba(0, 51, 102, 0.9) 0%, rgba(0, 64, 128, 0.8) 100%);
+        border-bottom: 2px solid rgba(47, 110, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
         gap: var(--vanna-space-4);
@@ -220,7 +220,7 @@ export class VannaChat extends LitElement {
         width: 44px;
         height: 44px;
         border-radius: var(--vanna-border-radius-lg);
-        background: rgba(138, 43, 226, 0.3);
+        background: rgb(47, 110, 255);
         backdrop-filter: blur(10px);
         display: grid;
         place-items: center;
@@ -228,9 +228,9 @@ export class VannaChat extends LitElement {
         font-size: 18px;
         letter-spacing: 0.08em;
         color: rgb(255, 255, 255);
-        border: 2px solid rgba(186, 85, 211, 0.8);
-        box-shadow: 0 0 20px rgba(138, 43, 226, 0.8), inset 0 0 15px rgba(186, 85, 211, 0.4);
-        text-shadow: 0 0 15px rgba(186, 85, 211, 1), 0 0 25px rgba(138, 43, 226, 0.8);
+        border: 2px solid rgba(47, 110, 255, 0.8);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.3);
+        text-shadow: none;
       }
 
       .header-text {
@@ -246,7 +246,7 @@ export class VannaChat extends LitElement {
         font-weight: 700;
         letter-spacing: 0.08em;
         color: rgb(255, 255, 255);
-        text-shadow: 0 0 15px rgba(186, 85, 211, 1), 0 0 30px rgba(138, 43, 226, 0.8), 0 0 45px rgba(255, 0, 255, 0.6);
+        text-shadow: none;
         font-family: var(--vanna-font-family-default);
         line-height: 1.3;
       }
@@ -352,8 +352,7 @@ export class VannaChat extends LitElement {
         overflow-y: auto;
         overflow-x: hidden;
         padding: var(--vanna-space-6) var(--vanna-space-6) var(--vanna-space-5);
-        background: radial-gradient(circle at top, rgba(138, 43, 226, 0.15) 0%, transparent 50%), 
-                    linear-gradient(180deg, var(--chat-muted) 0%, var(--chat-surface) 70%);
+        background: var(--chat-muted);
         scroll-behavior: smooth;
         display: flex;
         flex-direction: column;
@@ -368,41 +367,32 @@ export class VannaChat extends LitElement {
       }
 
       .chat-messages::-webkit-scrollbar-track {
-        background: rgba(138, 43, 226, 0.1);
+        background: rgba(225, 230, 238, 0.3);
         border-radius: 5px;
-        border: 1px solid rgba(186, 85, 211, 0.2);
+        border: 1px solid rgba(225, 230, 238, 0.5);
       }
 
       .chat-messages::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
+        background: rgb(47, 110, 255);
         border-radius: 5px;
-        border: 1px solid rgba(186, 85, 211, 0.4);
-        box-shadow: 
-          0 0 8px rgba(186, 85, 211, 0.5),
-          inset 0 0 4px rgba(138, 43, 226, 0.3);
+        border: 1px solid rgba(47, 110, 255, 0.6);
+        box-shadow: 0 0 4px rgba(47, 110, 255, 0.3);
       }
 
       .chat-messages::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.8) 0%, rgba(138, 43, 226, 0.8) 100%);
-        border-color: rgba(186, 85, 211, 0.7);
-        box-shadow: 
-          0 0 12px rgba(186, 85, 211, 0.7),
-          0 0 20px rgba(138, 43, 226, 0.4),
-          inset 0 0 6px rgba(138, 43, 226, 0.4);
+        background: rgb(0, 212, 255);
+        border-color: rgba(0, 212, 255, 0.8);
+        box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
       }
 
       :host([theme="dark"]) .chat-messages {
-        background: radial-gradient(circle at top, rgba(138, 43, 226, 0.2) 0%, rgba(186, 85, 211, 0.1) 50%, transparent 70%), 
-                    radial-gradient(circle at bottom, rgba(255, 0, 255, 0.1) 0%, transparent 60%),
-                    var(--chat-surface);
+        background: var(--chat-surface);
       }
 
       :host([theme="dark"]) .chat-messages::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
-        border-color: rgba(186, 85, 211, 0.4);
-        box-shadow: 
-          0 0 8px rgba(186, 85, 211, 0.5),
-          inset 0 0 4px rgba(138, 43, 226, 0.3);
+        background: rgb(47, 110, 255);
+        border-color: rgba(47, 110, 255, 0.6);
+        box-shadow: 0 0 4px rgba(47, 110, 255, 0.3);
       }
 
       /* Scroll indicator when there's content above */
@@ -474,28 +464,28 @@ export class VannaChat extends LitElement {
         gap: var(--vanna-space-2);
         padding: 6px 8px 6px 16px;
         border-radius: var(--vanna-border-radius-xl);
-        background: rgba(10, 10, 20, 0.9);
-        border: 1.5px solid rgba(138, 43, 226, 0.4);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 8px rgba(138, 43, 226, 0.2);
+        background: rgb(255, 255, 255);
+        border: 1.5px solid rgba(225, 230, 238, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         transition: all var(--vanna-duration-200) ease;
       }
 
       .chat-input-container:focus-within {
-        border-color: rgba(186, 85, 211, 0.9);
-        box-shadow: 0 0 15px rgba(138, 43, 226, 0.6), 0 0 30px rgba(186, 85, 211, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-        background: rgba(15, 15, 30, 0.95);
+        border-color: rgb(47, 110, 255);
+        box-shadow: 0 0 0 3px rgba(47, 110, 255, 0.1);
+        background: rgb(255, 255, 255);
       }
 
       :host([theme="dark"]) .chat-input-container {
-        background: rgba(10, 10, 20, 0.8);
-        border-color: rgba(138, 43, 226, 0.4);
-        box-shadow: inset 0 1px 0 rgba(186, 85, 211, 0.2), 0 0 10px rgba(138, 43, 226, 0.2);
+        background: rgb(22, 32, 51);
+        border-color: rgba(225, 230, 238, 0.2);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
 
       :host([theme="dark"]) .chat-input-container:focus-within {
-        border-color: rgba(186, 85, 211, 0.8);
-        box-shadow: 0 0 15px rgba(138, 43, 226, 0.6), 0 0 30px rgba(186, 85, 211, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        background: rgba(15, 15, 30, 0.9);
+        border-color: rgb(47, 110, 255);
+        box-shadow: 0 0 0 3px rgba(47, 110, 255, 0.15);
+        background: rgb(30, 42, 65);
       }
 
       .message-input {
@@ -505,29 +495,29 @@ export class VannaChat extends LitElement {
         font-size: 14px;
         font-family: var(--vanna-font-family-default);
         line-height: 1.5;
-        color: rgb(255, 255, 255);
+        color: rgb(26, 26, 26);
         resize: none;
         min-height: 40px;
         max-height: 120px;
         padding: 10px 0;
         outline: none;
-        text-shadow: 0 0 6px rgba(186, 85, 211, 0.6), 0 0 12px rgba(138, 43, 226, 0.4);
+        text-shadow: none;
         font-weight: 400;
       }
 
       :host([theme="dark"]) .message-input {
         color: rgb(255, 255, 255);
-        text-shadow: 0 0 8px rgba(186, 85, 211, 0.8), 0 0 15px rgba(138, 43, 226, 0.6);
+        text-shadow: none;
       }
 
       .message-input::placeholder {
-        color: rgba(200, 180, 255, 0.6);
-        text-shadow: 0 0 5px rgba(138, 43, 226, 0.4);
+        color: rgb(154, 166, 184);
+        text-shadow: none;
       }
 
       :host([theme="dark"]) .message-input::placeholder {
-        color: rgba(200, 180, 255, 0.65);
-        text-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+        color: rgba(200, 210, 225, 0.65);
+        text-shadow: none;
       }
 
       .message-input:focus {
@@ -547,30 +537,30 @@ export class VannaChat extends LitElement {
         width: 40px;
         height: 40px;
         border-radius: var(--vanna-border-radius-lg);
-        border: 2px solid rgba(186, 85, 211, 0.8);
-        background: linear-gradient(135deg, rgba(138, 43, 226, 0.95), rgba(186, 85, 211, 0.95));
+        border: 2px solid rgb(47, 110, 255);
+        background: rgb(47, 110, 255);
         color: rgb(255, 255, 255);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all var(--vanna-duration-200) ease;
-        box-shadow: 0 0 15px rgba(138, 43, 226, 0.7), 0 0 30px rgba(186, 85, 211, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.12);
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.3);
+        text-shadow: none;
         font-weight: 600;
         flex-shrink: 0;
       }
 
       .send-button:hover {
         transform: translateY(-1px) scale(1.05);
-        box-shadow: 0 0 20px rgba(138, 43, 226, 0.9), 0 0 40px rgba(186, 85, 211, 0.7), 0 0 60px rgba(255, 0, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 0, 255, 0.9);
-        background: linear-gradient(135deg, rgba(186, 85, 211, 1), rgba(255, 0, 255, 0.85));
+        box-shadow: 0 4px 12px rgba(47, 110, 255, 0.4);
+        border-color: rgb(0, 212, 255);
+        background: rgb(0, 212, 255);
       }
 
       .send-button:active {
         transform: translateY(0) scale(1.0);
-        box-shadow: 0 0 15px rgba(138, 43, 226, 0.7), 0 0 30px rgba(186, 85, 211, 0.5);
+        box-shadow: 0 2px 6px rgba(47, 110, 255, 0.3);
       }
 
       .send-button:disabled {
@@ -604,7 +594,7 @@ export class VannaChat extends LitElement {
         width: 320px;
         padding: 0;
         background: var(--vanna-background-higher);
-        border-left: 2px solid rgba(138, 43, 226, 0.3);
+        border-left: 2px solid rgba(225, 230, 238, 1);
       }
 
       .sidebar::-webkit-scrollbar {
@@ -612,27 +602,22 @@ export class VannaChat extends LitElement {
       }
 
       .sidebar::-webkit-scrollbar-track {
-        background: rgba(138, 43, 226, 0.1);
+        background: rgba(225, 230, 238, 0.3);
         border-radius: 5px;
-        border: 1px solid rgba(186, 85, 211, 0.2);
+        border: 1px solid rgba(225, 230, 238, 0.5);
       }
 
       .sidebar::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
+        background: rgb(47, 110, 255);
         border-radius: 5px;
-        border: 1px solid rgba(186, 85, 211, 0.4);
-        box-shadow: 
-          0 0 8px rgba(186, 85, 211, 0.5),
-          inset 0 0 4px rgba(138, 43, 226, 0.3);
+        border: 1px solid rgba(47, 110, 255, 0.6);
+        box-shadow: 0 0 4px rgba(47, 110, 255, 0.3);
       }
 
       .sidebar::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.8) 0%, rgba(138, 43, 226, 0.8) 100%);
-        border-color: rgba(186, 85, 211, 0.7);
-        box-shadow: 
-          0 0 12px rgba(186, 85, 211, 0.7),
-          0 0 20px rgba(138, 43, 226, 0.4),
-          inset 0 0 6px rgba(138, 43, 226, 0.4);
+        background: rgb(0, 212, 255);
+        border-color: rgba(0, 212, 255, 0.8);
+        box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
       }
 
       :host([theme="dark"]) .sidebar {
@@ -650,55 +635,31 @@ export class VannaChat extends LitElement {
         font-size: 15px;
         font-weight: 500;
         line-height: 1.6;
-        background: linear-gradient(135deg, 
-          rgba(138, 43, 226, 0.15) 0%, 
-          rgba(186, 85, 211, 0.1) 50%,
-          rgba(138, 43, 226, 0.08) 100%);
+        background: rgb(255, 255, 255);
         border-radius: var(--vanna-border-radius-2xl);
-        border: 2px dashed rgba(186, 85, 211, 0.5);
-        box-shadow: 
-          0 0 20px rgba(138, 43, 226, 0.3),
-          0 0 40px rgba(186, 85, 211, 0.2),
-          inset 0 0 30px rgba(138, 43, 226, 0.1);
+        border: 2px dashed rgba(225, 230, 238, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         backdrop-filter: blur(8px);
         transition: all var(--vanna-duration-300) ease;
       }
 
       .empty-state:hover {
-        border-color: rgba(186, 85, 211, 0.8);
+        border-color: rgb(47, 110, 255);
         transform: translateY(-2px);
-        box-shadow: 
-          0 0 30px rgba(138, 43, 226, 0.4),
-          0 0 60px rgba(186, 85, 211, 0.3),
-          inset 0 0 40px rgba(138, 43, 226, 0.15);
-        background: linear-gradient(135deg, 
-          rgba(138, 43, 226, 0.2) 0%, 
-          rgba(186, 85, 211, 0.15) 50%,
-          rgba(138, 43, 226, 0.12) 100%);
+        box-shadow: 0 4px 12px rgba(47, 110, 255, 0.15);
+        background: rgb(255, 255, 255);
       }
 
       :host([theme="dark"]) .empty-state {
-        background: linear-gradient(135deg, 
-          rgba(138, 43, 226, 0.15) 0%, 
-          rgba(186, 85, 211, 0.1) 50%,
-          rgba(138, 43, 226, 0.08) 100%);
-        border-color: rgba(186, 85, 211, 0.5);
-        box-shadow: 
-          0 0 20px rgba(138, 43, 226, 0.3),
-          0 0 40px rgba(186, 85, 211, 0.2),
-          inset 0 0 30px rgba(138, 43, 226, 0.1);
+        background: rgb(22, 32, 51);
+        border-color: rgba(225, 230, 238, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
       :host([theme="dark"]) .empty-state:hover {
-        border-color: rgba(186, 85, 211, 0.8);
-        box-shadow: 
-          0 0 30px rgba(138, 43, 226, 0.4),
-          0 0 60px rgba(186, 85, 211, 0.3),
-          inset 0 0 40px rgba(138, 43, 226, 0.15);
-        background: linear-gradient(135deg, 
-          rgba(138, 43, 226, 0.2) 0%, 
-          rgba(186, 85, 211, 0.15) 50%,
-          rgba(138, 43, 226, 0.12) 100%);
+        border-color: rgb(47, 110, 255);
+        box-shadow: 0 4px 12px rgba(47, 110, 255, 0.2);
+        background: rgb(30, 42, 65);
       }
 
       .empty-state-icon {
@@ -706,30 +667,26 @@ export class VannaChat extends LitElement {
         height: 64px;
         margin: 0 auto var(--vanna-space-6);
         opacity: 0.9;
-        color: rgba(186, 85, 211, 1);
-        filter: drop-shadow(0 0 10px rgba(186, 85, 211, 0.8)) 
-                drop-shadow(0 0 20px rgba(138, 43, 226, 0.6));
+        color: rgb(47, 110, 255);
+        filter: none;
       }
 
       .empty-state-text {
         font-size: 20px;
         font-weight: 700;
-        color: rgb(255, 255, 255);
+        color: rgb(26, 26, 26);
         margin-bottom: var(--vanna-space-3);
-        text-shadow: 
-          0 0 15px rgba(186, 85, 211, 1), 
-          0 0 30px rgba(138, 43, 226, 0.8), 
-          0 0 45px rgba(255, 0, 255, 0.6);
+        text-shadow: none;
         letter-spacing: 0.08em;
         line-height: 1.4;
       }
 
       .empty-state-subtitle {
         font-size: 15px;
-        color: rgba(200, 180, 255, 0.9);
+        color: rgb(93, 107, 130);
         opacity: 1;
         font-weight: 500;
-        text-shadow: 0 0 8px rgba(138, 43, 226, 0.6);
+        text-shadow: none;
         letter-spacing: 0.03em;
         line-height: 1.5;
       }

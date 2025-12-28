@@ -199,11 +199,13 @@ def main(
             click.echo(f"Error: Could not create basic agent: {e}", err=True)
             return
 
-    from ..flask.app import VannaFlaskServer
-    from ..fastapi.app import VannaFastAPIServer
+    # Lazy import to avoid requiring flask when using fastapi
+    if framework == "flask":
+        from ..flask.app import VannaFlaskServer
+    else:
+        from ..fastapi.app import VannaFastAPIServer
 
     # Create and run server
-    server: Union[VannaFlaskServer, VannaFastAPIServer]
     if framework == "flask":
         server = VannaFlaskServer(agent, config=server_config)
         click.echo(f"[START] Starting Flask server on http://{host}:{port}")

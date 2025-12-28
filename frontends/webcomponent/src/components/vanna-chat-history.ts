@@ -20,15 +20,15 @@ export class VannaChatHistory extends LitElement {
         width: 100%;
         height: 100%;
         background: var(--vanna-background-higher);
-        border-left: 2px solid rgba(138, 43, 226, 0.3);
+        border-left: 2px solid rgba(225, 230, 238, 1);
         overflow: hidden;
         position: relative;
       }
 
       .history-header {
         padding: var(--vanna-space-4) var(--vanna-space-5);
-        border-bottom: 2px solid rgba(138, 43, 226, 0.3);
-        background: linear-gradient(135deg, rgba(186, 85, 211, 0.1) 0%, rgba(138, 43, 226, 0.05) 100%);
+        border-bottom: 2px solid rgba(225, 230, 238, 1);
+        background: rgb(255, 255, 255);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -38,19 +38,17 @@ export class VannaChatHistory extends LitElement {
       .history-title {
         font-size: 18px;
         font-weight: 700;
-        color: rgb(255, 255, 255);
+        color: rgb(0, 51, 102);
         margin: 0;
-        text-shadow: 
-          0 0 10px rgba(186, 85, 211, 0.8),
-          0 0 20px rgba(186, 85, 211, 0.6);
+        text-shadow: none;
         letter-spacing: 0.02em;
         flex: 1;
       }
 
       .new-conversation-button {
         padding: var(--vanna-space-2) var(--vanna-space-4);
-        background: linear-gradient(135deg, rgba(186, 85, 211, 0.3) 0%, rgba(138, 43, 226, 0.2) 100%);
-        border: 2px solid rgba(186, 85, 211, 0.6);
+        background: rgb(47, 110, 255);
+        border: 2px solid rgb(47, 110, 255);
         border-radius: var(--vanna-border-radius-lg);
         color: rgb(255, 255, 255);
         font-size: 13px;
@@ -58,30 +56,23 @@ export class VannaChatHistory extends LitElement {
         cursor: pointer;
         transition: all var(--vanna-duration-200) ease;
         white-space: nowrap;
-        text-shadow: 0 0 8px rgba(186, 85, 211, 0.6);
-        box-shadow: 
-          0 0 10px rgba(186, 85, 211, 0.3),
-          inset 0 0 10px rgba(138, 43, 226, 0.1);
+        text-shadow: none;
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.3);
         display: flex;
         align-items: center;
         gap: var(--vanna-space-2);
       }
 
       .new-conversation-button:hover {
-        background: linear-gradient(135deg, rgba(186, 85, 211, 0.4) 0%, rgba(138, 43, 226, 0.3) 100%);
-        border-color: rgba(186, 85, 211, 0.9);
-        box-shadow: 
-          0 0 20px rgba(186, 85, 211, 0.5),
-          0 0 40px rgba(138, 43, 226, 0.3),
-          inset 0 0 15px rgba(138, 43, 226, 0.2);
+        background: rgb(0, 212, 255);
+        border-color: rgb(0, 212, 255);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
         transform: translateY(-1px);
       }
 
       .new-conversation-button:active {
         transform: translateY(0);
-        box-shadow: 
-          0 0 15px rgba(186, 85, 211, 0.4),
-          inset 0 0 10px rgba(138, 43, 226, 0.15);
+        box-shadow: 0 2px 6px rgba(47, 110, 255, 0.3);
       }
 
 
@@ -102,35 +93,30 @@ export class VannaChatHistory extends LitElement {
       }
 
       .history-list::-webkit-scrollbar-track {
-        background: rgba(138, 43, 226, 0.1);
+        background: rgba(225, 230, 238, 0.3);
         border-radius: 5px;
-        border: 1px solid rgba(186, 85, 211, 0.2);
+        border: 1px solid rgba(225, 230, 238, 0.5);
       }
 
       .history-list::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
+        background: rgb(47, 110, 255);
         border-radius: 5px;
-        border: 1px solid rgba(186, 85, 211, 0.4);
-        box-shadow: 
-          0 0 8px rgba(186, 85, 211, 0.5),
-          inset 0 0 4px rgba(138, 43, 226, 0.3);
+        border: 1px solid rgba(47, 110, 255, 0.6);
+        box-shadow: 0 0 4px rgba(47, 110, 255, 0.3);
       }
 
       .history-list::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, rgba(186, 85, 211, 0.8) 0%, rgba(138, 43, 226, 0.8) 100%);
-        border-color: rgba(186, 85, 211, 0.7);
-        box-shadow: 
-          0 0 12px rgba(186, 85, 211, 0.7),
-          0 0 20px rgba(138, 43, 226, 0.4),
-          inset 0 0 6px rgba(138, 43, 226, 0.4);
+        background: rgb(0, 212, 255);
+        border-color: rgba(0, 212, 255, 0.8);
+        box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
       }
 
       .conversation-item {
         padding: var(--vanna-space-3) var(--vanna-space-4);
         margin-bottom: var(--vanna-space-2);
         border-radius: var(--vanna-border-radius-lg);
-        background: rgba(138, 43, 226, 0.1);
-        border: 1px solid rgba(186, 85, 211, 0.3);
+        background: rgba(225, 230, 238, 0.3);
+        border: 1px solid rgba(225, 230, 238, 0.5);
         cursor: pointer;
         transition: all var(--vanna-duration-200) ease;
         position: relative;
@@ -202,22 +188,17 @@ export class VannaChatHistory extends LitElement {
       }
 
       .conversation-item:hover {
-        background: rgba(186, 85, 211, 0.2);
-        border-color: rgba(186, 85, 211, 0.6);
+        background: rgba(229, 241, 255, 0.5);
+        border-color: rgba(47, 110, 255, 0.3);
         transform: translateX(-2px);
-        box-shadow: 
-          0 0 15px rgba(186, 85, 211, 0.4),
-          0 0 30px rgba(138, 43, 226, 0.2);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.15);
       }
 
       .conversation-item.active {
-        background: linear-gradient(135deg, rgba(186, 85, 211, 0.4) 0%, rgba(138, 43, 226, 0.3) 100%);
-        border-color: rgba(186, 85, 211, 1);
+        background: rgba(229, 241, 255, 1);
+        border-color: rgb(47, 110, 255);
         border-width: 2px;
-        box-shadow: 
-          0 0 25px rgba(186, 85, 211, 0.7),
-          0 0 50px rgba(138, 43, 226, 0.4),
-          inset 0 0 20px rgba(186, 85, 211, 0.2);
+        box-shadow: 0 2px 8px rgba(47, 110, 255, 0.2);
         transform: translateX(-4px);
       }
 
@@ -228,29 +209,27 @@ export class VannaChatHistory extends LitElement {
         top: 0;
         bottom: 0;
         width: 4px;
-        background: linear-gradient(180deg, rgba(186, 85, 211, 1) 0%, rgba(138, 43, 226, 1) 100%);
-        box-shadow: 0 0 10px rgba(186, 85, 211, 0.8);
+        background: rgb(47, 110, 255);
+        box-shadow: 0 0 8px rgba(47, 110, 255, 0.5);
       }
 
       .conversation-item.active .conversation-title {
-        color: rgb(255, 255, 255);
-        text-shadow: 
-          0 0 12px rgba(186, 85, 211, 1),
-          0 0 24px rgba(186, 85, 211, 0.8);
+        color: rgb(0, 51, 102);
+        text-shadow: none;
         font-weight: 700;
       }
 
       .conversation-item.active .conversation-preview {
-        color: rgba(220, 200, 255, 0.95);
-        text-shadow: 0 0 8px rgba(186, 85, 211, 0.4);
+        color: rgb(93, 107, 130);
+        text-shadow: none;
       }
 
       .conversation-title {
         font-size: 14px;
         font-weight: 600;
-        color: rgb(255, 255, 255);
+        color: rgb(26, 26, 26);
         margin: 0 0 var(--vanna-space-1) 0;
-        text-shadow: 0 0 8px rgba(186, 85, 211, 0.6);
+        text-shadow: none;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -258,7 +237,7 @@ export class VannaChatHistory extends LitElement {
 
       .conversation-preview {
         font-size: 12px;
-        color: rgba(200, 180, 255, 0.8);
+        color: rgb(93, 107, 130);
         margin: 0 0 var(--vanna-space-1) 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -280,7 +259,7 @@ export class VannaChatHistory extends LitElement {
       }
 
       .conversation-count {
-        background: rgba(186, 85, 211, 0.3);
+        background: rgba(47, 110, 255, 0.2);
         padding: 2px 6px;
         border-radius: var(--vanna-border-radius-sm);
         font-weight: 600;
