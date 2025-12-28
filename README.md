@@ -317,12 +317,3 @@ docker tag trungnguyen131/vanna-agents:latest trungnguyen131/vanna-agents:2.0.1
 docker push trungnguyen131/vanna-agents:latest
 
 
---server
-docker pull trungnguyen131/vanna-agents:latest
-sudo docker run -d \
-  --name vanna-agents \
-  -p 3001:3001 \
-  -e GOOGLE_API_KEY=AIzaSyDBEjSG_AFbyRHcAk4npxiKknqxu-9c0lU \
-  -e MSSQL_CONNECTION_STRING="DRIVER={ODBC Driver 17 for SQL Server};SERVER=103.124.92.168;DATABASE=TestAI;UID=dev;PWD=Trung@1122" \
-  --restart unless-stopped \
-  trungnguyen131/vanna-agents:latest
