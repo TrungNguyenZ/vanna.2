@@ -4,6 +4,9 @@ export default defineConfig({
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
     __BUILD_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
+    'process.env': '{}',
+    'process.browser': 'true',
+    'process.version': '""',
   },
   build: {
     outDir: 'dist',
@@ -15,6 +18,10 @@ export default defineConfig({
     rollupOptions: {
       // Remove external to bundle lit with the components
       // external: /^lit/,
+      output: {
+        // Ensure ECharts is bundled
+        inlineDynamicImports: true,
+      },
     },
   },
   preview: {

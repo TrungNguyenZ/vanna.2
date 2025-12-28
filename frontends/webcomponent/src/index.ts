@@ -1,3 +1,12 @@
+// Polyfill for process (needed by some libraries like ECharts)
+if (typeof window !== 'undefined' && typeof (window as any).process === 'undefined') {
+  (window as any).process = {
+    env: {},
+    browser: true,
+    version: '',
+  };
+}
+
 // Log build information when the module loads
 console.log(
   '%c🎨 Vanna Web Components',
@@ -20,7 +29,9 @@ export { VannaChat } from './components/vanna-chat';
 export { VannaMessage } from './components/vanna-message';
 export { VannaStatusBar } from './components/vanna-status-bar';
 export { VannaProgressTracker } from './components/vanna-progress-tracker';
+export { VannaChatHistory } from './components/vanna-chat-history';
 export { PlotlyChart } from './components/plotly-chart';
+export { EChartsChart } from './components/echarts-chart';
 
 // Rich component system
 export {

@@ -826,6 +826,58 @@ class Agent:
 
                     result = await self.tool_registry.execute(tool_call, context)
 
+                    # Handle tool errors with retry logic
+                    if not result.success and self.error_recovery_strategy:
+                        retry_attempt = 1
+                        max_retries = 5  # Maximum retries per tool call
+                        
+                        while not result.success and retry_attempt <= max_retries:
+                            # Create an exception from the error message for error_recovery_strategy
+                            error_exception = Exception(result.error or "Tool execution failed")
+                            
+                            # Get recovery action from strategy
+                            recovery_action = await self.error_recovery_strategy.handle_tool_error(
+                                error_exception, context, retry_attempt
+                            )
+                            
+                            if recovery_action.action == RecoveryActionType.RETRY:
+                                # Wait for retry delay
+                                if recovery_action.retry_delay_ms:
+                                    import asyncio
+                                    await asyncio.sleep(recovery_action.retry_delay_ms / 1000.0)
+                                
+                                # Log retry attempt
+                                logger.info(
+                                    f"Retrying tool '{tool_call.name}' (attempt {retry_attempt}/{max_retries}): "
+                                    f"{recovery_action.message}"
+                                )
+                                
+                                # Update status to show retry
+                                yield UiComponent(  # type: ignore
+                                    rich_component=StatusBarUpdateComponent(
+                                        status="working",
+                                        message=f"Đang thử lại...",
+                                        detail=recovery_action.message or f"Lần thử {retry_attempt}/{max_retries}",
+                                    )
+                                )
+                                
+                                # Retry tool execution
+                                result = await self.tool_registry.execute(tool_call, context)
+                                retry_attempt += 1
+                            else:
+                                # Strategy says to fail, break retry loop
+                                logger.warning(
+                                    f"Error recovery strategy decided to fail after {retry_attempt - 1} attempts: "
+                                    f"{recovery_action.message}"
+                                )
+                                break
+                        
+                        if not result.success:
+                            logger.error(
+                                f"Tool '{tool_call.name}' failed after {retry_attempt - 1} retry attempts: "
+                                f"{result.error}"
+                            )
+
                     if self.observability_provider and tool_exec_span:
                         tool_exec_span.set_attribute("success", result.success)
                         if not result.success:
@@ -1015,8 +1067,8 @@ class Agent:
                 yield UiComponent(  # type: ignore
                     rich_component=StatusBarUpdateComponent(
                         status="idle",
-                        message="Response complete",
-                        detail="Ready for next message",
+                        message="Đã hoàn thành",
+                        detail="Sẵn sàng nhận câu hỏi tiếp theo",
                     )
                 )
 

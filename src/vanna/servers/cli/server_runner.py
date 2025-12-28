@@ -28,14 +28,17 @@ class ExampleAgentLoader:
             "email_auth_example": "Email-based authentication demonstration (mock LLM)",
             "claude_sqlite_example": "Claude agent with SQLite database querying capabilities",
             "mock_sqlite_example": "Mock agent with SQLite database demonstration",
+            "gemini_mssql": "Gemini AI agent with SQL Server database querying capabilities",
+            "gemini_mssql_example": "Gemini AI agent with SQL Server database querying capabilities (alias)",
         }
 
     @staticmethod
-    def load_example_agent(example_name: str) -> Agent:
+    def load_example_agent(example_name: str, config: Optional[Dict[str, Any]] = None) -> Agent:
         """Load an example agent by name.
 
         Args:
             example_name: Name of the example to load
+            config: Optional configuration dict (may contain 'model' key)
 
         Returns:
             Configured agent instance
@@ -43,9 +46,17 @@ class ExampleAgentLoader:
         Raises:
             ValueError: If example not found or failed to load
         """
+        # Map short names to full module names
+        name_mapping = {
+            "gemini_mssql": "gemini_mssql_example",
+        }
+        
+        # Use mapped name if available, otherwise use original
+        actual_name = name_mapping.get(example_name, example_name)
+        
         try:
             # Import the example module
-            module = importlib.import_module(f"vanna.examples.{example_name}")
+            module = importlib.import_module(f"vanna.examples.{actual_name}")
 
             # Look for standard factory functions
             factory_functions = [
@@ -57,7 +68,13 @@ class ExampleAgentLoader:
             for func_name in factory_functions:
                 if hasattr(module, func_name):
                     factory = getattr(module, func_name)
-                    return cast(Agent, factory())
+                    # Try to pass config if factory accepts it
+                    import inspect
+                    sig = inspect.signature(factory)
+                    if "config" in sig.parameters:
+                        return cast(Agent, factory(config=config))
+                    else:
+                        return cast(Agent, factory())
 
             # Look for module-level agent instances
             if hasattr(module, "main_agent"):
@@ -98,8 +115,13 @@ class ExampleAgentLoader:
 )
 @click.option(
     "--cdn-url",
-    default="https://img.vanna.ai/vanna-components.js",
-    help="CDN URL for web components",
+    default="/static/vanna-components.js",
+    help="CDN URL for web components (default: local file)",
+)
+@click.option(
+    "--model",
+    default=None,
+    help="AI model to use (e.g., gemini-2.5-pro, gemini-2.5-flash, claude-sonnet-4-20250514)",
 )
 def main(
     framework: str,
@@ -112,6 +134,7 @@ def main(
     dev: bool,
     static_folder: Optional[str],
     cdn_url: str,
+    model: Optional[str],
 ) -> None:
     """Run Vanna Agents server with optional example agent."""
 
@@ -127,25 +150,35 @@ def main(
     if config:
         server_config = json.load(cast(TextIO, config))
 
-    # Set default static folder based on dev mode
+    # Set default static folder - always prefer local files
     if static_folder is None:
-        static_folder = "frontend/webcomponent/static" if dev else "static"
+        static_folder = "frontends/webcomponent/dist"
+
+    # Force dev_mode=True if local file exists, unless explicitly disabled
+    import os
+    if not dev and os.path.exists(static_folder):
+        dev = True  # Auto-enable dev mode if local files exist
 
     # Add CLI options to config
     server_config.update(
         {
             "dev_mode": dev,
             "static_folder": static_folder,
-            "cdn_url": cdn_url,
+            "cdn_url": cdn_url if cdn_url.startswith("http") else "/static/vanna-components.js",
             "api_base_url": "",  # Can be overridden in config file
         }
     )
 
+    # Add model to config if provided
+    if model:
+        server_config["model"] = model
+        click.echo(f"[AI] Using AI model: {model}")
+
     # Create agent
     if example:
         try:
-            agent = ExampleAgentLoader.load_example_agent(example)
-            click.echo(f"✓ Loaded example agent: {example}")
+            agent = ExampleAgentLoader.load_example_agent(example, config=server_config)
+            click.echo(f"[OK] Loaded example agent: {example}")
         except ValueError as e:
             click.echo(f"Error: {e}", err=True)
             return
@@ -160,7 +193,7 @@ def main(
             )
             agent = create_basic_agent(llm_service)
             click.echo(
-                "✓ Using basic demo agent (use --example to specify different agent)"
+                "[OK] Using basic demo agent (use --example to specify different agent)"
             )
         except ImportError as e:
             click.echo(f"Error: Could not create basic agent: {e}", err=True)
@@ -173,31 +206,31 @@ def main(
     server: Union[VannaFlaskServer, VannaFastAPIServer]
     if framework == "flask":
         server = VannaFlaskServer(agent, config=server_config)
-        click.echo(f"🚀 Starting Flask server on http://{host}:{port}")
+        click.echo(f"[START] Starting Flask server on http://{host}:{port}")
         if dev:
             click.echo(
-                f"📦 Development mode: loading web components from ./{static_folder}/"
+                f"[DEV] Development mode: loading web components from ./{static_folder}/"
             )
         else:
-            click.echo(f"🌍 Production mode: loading web components from CDN")
+            click.echo(f"[PROD] Production mode: loading web components from CDN")
         try:
             server.run(host=host, port=port, debug=debug)
         except KeyboardInterrupt:
-            click.echo("\n👋 Server stopped")
+            click.echo("\n[STOP] Server stopped")
     else:
         server = VannaFastAPIServer(agent, config=server_config)
-        click.echo(f"🚀 Starting FastAPI server on http://{host}:{port}")
-        click.echo(f"📖 API docs available at http://{host}:{port}/docs")
+        click.echo(f"[START] Starting FastAPI server on http://{host}:{port}")
+        click.echo(f"[DOCS] API docs available at http://{host}:{port}/docs")
         if dev:
             click.echo(
-                f"📦 Development mode: loading web components from ./{static_folder}/"
+                f"[DEV] Development mode: loading web components from ./{static_folder}/"
             )
         else:
-            click.echo(f"🌍 Production mode: loading web components from CDN")
+            click.echo(f"[PROD] Production mode: loading web components from CDN")
         try:
             server.run(host=host, port=port)
         except KeyboardInterrupt:
-            click.echo("\n👋 Server stopped")
+            click.echo("\n[STOP] Server stopped")
 
 
 if __name__ == "__main__":

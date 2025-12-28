@@ -622,10 +622,18 @@ export const richComponentStyles = css`
   }
 
   /* Text components */
-  .text-markdown {
-    padding-left: var(--vanna-space-4);
-    line-height: 1.6;
+  .rich-text {
+    padding: var(--vanna-space-4) var(--vanna-space-5);
+    line-height: 1.7;
     font-family: var(--vanna-font-family-default);
+    color: rgb(255, 255, 255);
+  }
+
+  .text-markdown {
+    padding: var(--vanna-space-4) var(--vanna-space-5);
+    line-height: 1.7;
+    font-family: var(--vanna-font-family-default);
+    color: rgb(255, 255, 255);
   }
 
   .text-markdown h1,
@@ -634,8 +642,30 @@ export const richComponentStyles = css`
   .text-markdown h4,
   .text-markdown h5,
   .text-markdown h6 {
-    margin: var(--vanna-space-3) 0 var(--vanna-space-2) 0;
-    color: var(--vanna-foreground-default);
+    margin: var(--vanna-space-4) 0 var(--vanna-space-3) 0;
+    color: rgb(255, 255, 255);
+    font-weight: 700;
+    text-shadow: 
+      0 0 10px rgba(186, 85, 211, 0.8),
+      0 0 20px rgba(186, 85, 211, 0.6),
+      0 0 30px rgba(138, 43, 226, 0.4);
+    letter-spacing: 0.02em;
+  }
+
+  .text-markdown h1 {
+    font-size: 1.75rem;
+    text-shadow: 
+      0 0 15px rgba(186, 85, 211, 1),
+      0 0 30px rgba(186, 85, 211, 0.8),
+      0 0 45px rgba(138, 43, 226, 0.6);
+  }
+
+  .text-markdown h2 {
+    font-size: 1.5rem;
+    text-shadow: 
+      0 0 12px rgba(186, 85, 211, 0.9),
+      0 0 24px rgba(186, 85, 211, 0.7),
+      0 0 36px rgba(138, 43, 226, 0.5);
   }
 
   .text-markdown h1:first-child,
@@ -648,44 +678,64 @@ export const richComponentStyles = css`
   }
 
   .text-markdown p {
-    margin: var(--vanna-space-2) 0;
-    color: var(--vanna-foreground-default);
+    margin: var(--vanna-space-3) 0;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1rem;
+    line-height: 1.7;
+    text-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
   }
 
   .text-markdown ul,
   .text-markdown ol {
-    margin: var(--vanna-space-2) 0;
-    padding-left: var(--vanna-space-5);
+    margin: var(--vanna-space-3) 0;
+    padding-left: var(--vanna-space-6);
   }
 
   .text-markdown li {
-    margin: var(--vanna-space-1) 0;
-    color: var(--vanna-foreground-default);
+    margin: var(--vanna-space-2) 0;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    text-shadow: 0 0 6px rgba(138, 43, 226, 0.3);
   }
 
   .text-markdown code {
-    background: var(--vanna-background-root);
-    border: 1px solid var(--vanna-outline-dimmer);
+    background: rgba(138, 43, 226, 0.2);
+    border: 1px solid rgba(186, 85, 211, 0.4);
     border-radius: var(--vanna-border-radius-sm);
-    padding: 2px 4px;
+    padding: 3px 6px;
     font-family: var(--vanna-font-family-mono);
     font-size: 0.9em;
-    color: var(--vanna-foreground-default);
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 6px rgba(186, 85, 211, 0.6);
+    box-shadow: 0 0 8px rgba(138, 43, 226, 0.3);
   }
 
   .text-markdown pre {
-    background: var(--vanna-background-root);
-    border: 1px solid var(--vanna-outline-dimmer);
+    background: rgba(10, 10, 20, 0.8);
+    border: 1px solid rgba(186, 85, 211, 0.4);
     border-radius: var(--vanna-border-radius-md);
-    padding: var(--vanna-space-3);
+    padding: var(--vanna-space-4);
     overflow-x: auto;
-    margin: var(--vanna-space-3) 0;
+    margin: var(--vanna-space-4) 0;
+    box-shadow: 
+      0 0 15px rgba(138, 43, 226, 0.4),
+      inset 0 0 10px rgba(186, 85, 211, 0.1);
   }
 
   .text-markdown pre code {
     background: none;
     border: none;
     padding: 0;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 0 8px rgba(186, 85, 211, 0.6);
+  }
+
+  .text-content {
+    padding: var(--vanna-space-4) var(--vanna-space-5);
+    line-height: 1.7;
+    font-family: var(--vanna-font-family-default);
+    color: rgb(255, 255, 255);
+    text-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
   }
 
   /* Chart */

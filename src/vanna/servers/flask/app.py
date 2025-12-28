@@ -33,11 +33,16 @@ class VannaFlaskServer:
         Returns:
             Configured Flask application
         """
-        # Check if dev mode is enabled
-        dev_mode = self.config.get("dev_mode", False)
-        static_folder = self.config.get("static_folder", "static") if dev_mode else None
-
-        app = Flask(__name__, static_folder=static_folder, static_url_path="/static")
+        # Check if dev mode is enabled - default to True for local development
+        dev_mode = self.config.get("dev_mode", True)
+        static_folder = self.config.get("static_folder", "frontends/webcomponent/dist")
+        
+        # Always try to serve static files if folder exists
+        import os
+        if os.path.exists(static_folder):
+            app = Flask(__name__, static_folder=static_folder, static_url_path="/static")
+        else:
+            app = Flask(__name__)
 
         # Apply configuration
         app.config.update(self.config.get("flask", {}))

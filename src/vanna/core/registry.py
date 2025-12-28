@@ -60,6 +60,23 @@ class ToolRegistry:
 
             self.audit_config = AuditConfig()
 
+    def register(self, tool: Tool[Any], access_groups: Optional[List[str]] = None) -> None:
+        """Register a tool (convenience method that calls register_local_tool).
+
+        Args:
+            tool: The tool to register
+            access_groups: Optional list of groups that can access this tool.
+                          If None, tool is accessible to all users (no restrictions).
+        """
+        if access_groups is None:
+            # No access restrictions, register as-is
+            if tool.name in self._tools:
+                raise ValueError(f"Tool '{tool.name}' already registered")
+            self._tools[tool.name] = tool
+        else:
+            # Use register_local_tool for access group restrictions
+            self.register_local_tool(tool, access_groups)
+
     def register_local_tool(self, tool: Tool[Any], access_groups: List[str]) -> None:
         """Register a local tool with optional access group restrictions.
 

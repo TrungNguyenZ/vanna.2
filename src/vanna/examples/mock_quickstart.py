@@ -20,6 +20,21 @@ from vanna import (
     MockLlmService,
     User,
 )
+from vanna.core.registry import ToolRegistry
+from vanna.core.user.resolver import UserResolver
+from vanna.core.user.request_context import RequestContext
+from vanna.integrations.local.agent_memory import DemoAgentMemory
+
+
+class SimpleUserResolver(UserResolver):
+    """Simple user resolver for demo purposes."""
+
+    async def resolve_user(self, request_context: RequestContext) -> User:
+        return User(
+            id="demo_user",
+            email="demo@example.com",
+            group_memberships=["user"],
+        )
 
 
 def create_demo_agent() -> Agent:
@@ -34,6 +49,9 @@ def create_demo_agent() -> Agent:
 
     return Agent(
         llm_service=llm_service,
+        tool_registry=ToolRegistry(),
+        user_resolver=SimpleUserResolver(),
+        agent_memory=DemoAgentMemory(max_items=1000),
         config=AgentConfig(
             stream_responses=True,  # Enable streaming for better server experience
             include_thinking_indicators=True,
@@ -59,9 +77,14 @@ async def main() -> None:
     print(f"User: {user_message}")
     print("Agent: ", end="")
 
+    # Create a request context for the user
+    from vanna.core.user.request_context import RequestContext
+    
+    request_context = RequestContext()
+    
     # Send message and collect response
     async for component in agent.send_message(
-        user=user, message=user_message, conversation_id=conversation_id
+        request_context=request_context, message=user_message, conversation_id=conversation_id
     ):
         if hasattr(component, "content"):
             print(component.content, end="")

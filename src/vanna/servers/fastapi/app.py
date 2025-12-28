@@ -55,19 +55,30 @@ class VannaFastAPIServer:
 
             app.add_middleware(CORSMiddleware, **cors_params)
 
-        # Add static file serving in dev mode
-        dev_mode = self.config.get("dev_mode", False)
-        if dev_mode:
-            static_folder = self.config.get("static_folder", "static")
-            try:
-                import os
+        # Add static file serving - always try to serve local files first
+        dev_mode = self.config.get("dev_mode", True)  # Default to True for local development
+        static_folder = self.config.get("static_folder", "frontends/webcomponent/dist")
+        
+        try:
+            import os
+            from pathlib import Path
 
-                if os.path.exists(static_folder):
+            # Try multiple possible locations
+            possible_paths = [
+                static_folder,
+                "frontends/webcomponent/dist",
+                Path(__file__).parent.parent.parent.parent / "frontends" / "webcomponent" / "dist",
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
                     app.mount(
-                        "/static", StaticFiles(directory=static_folder), name="static"
+                        "/static", StaticFiles(directory=str(path)), name="static"
                     )
-            except Exception:
-                pass  # Static files not available
+                    break
+        except Exception as e:
+            print(f"Warning: Could not mount static files: {e}")
+            pass  # Static files not available
 
         # Register routes
         register_chat_routes(app, self.chat_handler, self.config)

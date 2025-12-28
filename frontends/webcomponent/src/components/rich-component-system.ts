@@ -1310,24 +1310,58 @@ export class ButtonGroupComponentRenderer extends BaseComponentRenderer {
   }
 }
 
-// Chart component renderer (for Plotly charts)
+// Chart component renderer (for Plotly and ECharts)
 export class ChartComponentRenderer extends BaseComponentRenderer {
   render(component: RichComponent): HTMLElement {
     const container = document.createElement('div');
     container.className = 'rich-component rich-chart';
     container.dataset.componentId = component.id;
 
-    // The ChartComponent.data field contains the Plotly figure directly
-    // Structure: component.data = { data: [...traces...], layout: {...}, title: "...", config: {...} }
-    const { data: plotlyData, layout, title, config = {} } = component.data;
+    // Get chart type from component.data.chart_type or default to 'plotly'
+    const chartType = component.data?.chart_type || 'plotly';
+    const { data, layout, title, config = {}, option } = component.data || {};
 
     console.log('ChartComponentRenderer: Received component.data:', component.data);
-    console.log('ChartComponentRenderer: plotlyData:', plotlyData);
-    console.log('ChartComponentRenderer: layout:', layout);
+    console.log('ChartComponentRenderer: chart_type:', chartType);
 
-    // Check if we have a valid Plotly figure structure
-    if (plotlyData && Array.isArray(plotlyData) && layout) {
-      // Create plotly-chart web component
+    // Handle ECharts
+    if (chartType === 'echarts' || option) {
+      const echartsOption = option || this._convertPlotlyToECharts(data, layout, title);
+      
+      if (echartsOption) {
+        const chartElement = document.createElement('echarts-chart') as any;
+
+        // Set theme to match current theme
+        const vannaChat = document.querySelector('vanna-chat');
+        if (vannaChat) {
+          chartElement.theme = vannaChat.getAttribute('theme') || 'dark';
+        }
+
+        // Wrap in container with optional title
+        if (title) {
+          container.innerHTML = `
+            <div class="chart-header">
+              <h3 class="chart-title">${title}</h3>
+            </div>
+            <div class="chart-content"></div>
+          `;
+          container.querySelector('.chart-content')?.appendChild(chartElement);
+        } else {
+          container.appendChild(chartElement);
+        }
+
+        // Set option AFTER the element is in the DOM
+        requestAnimationFrame(() => {
+          chartElement.option = echartsOption;
+          console.log('ChartComponentRenderer: Set ECharts option:', chartElement.option);
+        });
+
+        return container;
+      }
+    }
+
+    // Handle Plotly (legacy support)
+    if (data && Array.isArray(data) && layout) {
       const chartElement = document.createElement('plotly-chart') as any;
 
       // Set theme to match current theme
@@ -1350,27 +1384,100 @@ export class ChartComponentRenderer extends BaseComponentRenderer {
       }
 
       // Set data AFTER the element is in the DOM
-      // This ensures the web component is fully initialized
       requestAnimationFrame(() => {
-        chartElement.data = plotlyData; // Plotly traces (array)
-        chartElement.layout = layout; // Plotly layout (object)
+        chartElement.data = data;
+        chartElement.layout = layout;
         chartElement.config = config;
-
-        console.log('ChartComponentRenderer: Set properties after DOM attachment');
-        console.log('ChartComponentRenderer: chartElement.data:', chartElement.data);
-        console.log('ChartComponentRenderer: chartElement.layout:', chartElement.layout);
+        console.log('ChartComponentRenderer: Set Plotly properties');
       });
-    } else {
-      // Fallback for invalid chart data
-      container.innerHTML = `
-        <div class="chart-error">
-          <p>Invalid chart data format</p>
-          <pre>${JSON.stringify(component.data, null, 2).substring(0, 200)}...</pre>
-        </div>
-      `;
+
+      return container;
     }
 
+    // Fallback for invalid chart data
+    container.innerHTML = `
+      <div class="chart-error">
+        <p>Invalid chart data format</p>
+        <pre>${JSON.stringify(component.data, null, 2).substring(0, 200)}...</pre>
+      </div>
+    `;
+
     return container;
+  }
+
+  // Convert Plotly data to ECharts option (basic conversion)
+  private _convertPlotlyToECharts(plotlyData: any, _layout: any, title?: string): any {
+    if (!plotlyData || !Array.isArray(plotlyData) || plotlyData.length === 0) {
+      return null;
+    }
+
+    const firstTrace = plotlyData[0];
+    const traceType = firstTrace.type || 'scatter';
+
+    // Basic conversion based on trace type
+    let echartsOption: any = {
+      title: title ? { text: title, left: 'center' } : undefined,
+      tooltip: { trigger: 'axis' },
+      legend: { data: [] },
+      xAxis: { type: 'category', data: [] },
+      yAxis: { type: 'value' },
+      series: [],
+    };
+
+    // Convert each trace to ECharts series
+    plotlyData.forEach((trace: any, index: number) => {
+      const seriesName = trace.name || `Series ${index + 1}`;
+      echartsOption.legend.data.push(seriesName);
+
+      let series: any = {
+        name: seriesName,
+        type: this._mapPlotlyTypeToECharts(traceType),
+        data: trace.y || trace.values || [],
+      };
+
+      // Handle x-axis data
+      if (trace.x && Array.isArray(trace.x)) {
+        if (index === 0) {
+          echartsOption.xAxis.data = trace.x;
+        }
+      }
+
+      // Handle different chart types
+      if (traceType === 'bar') {
+        series.type = 'bar';
+      } else if (traceType === 'scatter') {
+        series.type = 'scatter';
+        if (trace.x && trace.y) {
+          series.data = trace.x.map((x: any, i: number) => [x, trace.y[i]]);
+        }
+      } else if (traceType === 'pie') {
+        echartsOption.xAxis = undefined;
+        echartsOption.yAxis = undefined;
+        series.type = 'pie';
+        if (trace.labels && trace.values) {
+          series.data = trace.labels.map((label: any, i: number) => ({
+            name: label,
+            value: trace.values[i],
+          }));
+        }
+      }
+
+      echartsOption.series.push(series);
+    });
+
+    return echartsOption;
+  }
+
+  private _mapPlotlyTypeToECharts(plotlyType: string): string {
+    const mapping: Record<string, string> = {
+      'scatter': 'line',
+      'bar': 'bar',
+      'pie': 'pie',
+      'histogram': 'bar',
+      'box': 'boxplot',
+      'heatmap': 'heatmap',
+    };
+    return mapping[plotlyType] || 'line';
   }
 }
 

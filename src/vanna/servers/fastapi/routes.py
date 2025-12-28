@@ -29,8 +29,8 @@ def register_chat_routes(
     @app.get("/", response_class=HTMLResponse)
     async def index() -> str:
         """Serve the main chat interface."""
-        dev_mode = config.get("dev_mode", False)
-        cdn_url = config.get("cdn_url", "https://img.vanna.ai/vanna-components.js")
+        dev_mode = config.get("dev_mode", True)  # Default to True for local development
+        cdn_url = config.get("cdn_url", "/static/vanna-components.js")
         api_base_url = config.get("api_base_url", "")
 
         return get_index_html(
@@ -181,3 +181,92 @@ def register_chat_routes(
             traceback.print_stack()
             traceback.print_exc()
             raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
+    @app.get("/api/vanna/v2/conversations")
+    async def list_conversations(http_request: Request) -> Dict[str, Any]:
+        """List conversations for the current user."""
+        try:
+            # Get user from request context
+            request_context = RequestContext(
+                cookies=dict(http_request.cookies),
+                headers=dict(http_request.headers),
+                remote_addr=http_request.client.host if http_request.client else None,
+                query_params=dict(http_request.query_params),
+            )
+            
+            # Resolve user
+            user = await chat_handler.agent.user_resolver.resolve_user(request_context)
+            
+            # Get conversations from conversation store
+            if hasattr(chat_handler.agent, 'conversation_store'):
+                conversations = await chat_handler.agent.conversation_store.list_conversations(
+                    user, limit=50, offset=0
+                )
+                
+                return {
+                    "conversations": [
+                        {
+                            "id": conv.id,
+                            "messages": [
+                                {
+                                    "role": msg.role,
+                                    "content": msg.content,
+                                }
+                                for msg in conv.messages
+                            ],
+                            "created_at": conv.created_at.isoformat() if hasattr(conv.created_at, 'isoformat') else str(conv.created_at),
+                            "updated_at": conv.updated_at.isoformat() if hasattr(conv.updated_at, 'isoformat') else str(conv.updated_at),
+                        }
+                        for conv in conversations
+                    ]
+                }
+            else:
+                return {"conversations": []}
+        except Exception as e:
+            traceback.print_exc()
+            # Return empty list on error instead of failing
+            return {"conversations": []}
+
+    @app.get("/api/vanna/v2/conversations/{conversation_id}")
+    async def get_conversation(conversation_id: str, http_request: Request) -> Dict[str, Any]:
+        """Get a specific conversation by ID."""
+        try:
+            # Get user from request context
+            request_context = RequestContext(
+                cookies=dict(http_request.cookies),
+                headers=dict(http_request.headers),
+                remote_addr=http_request.client.host if http_request.client else None,
+                query_params=dict(http_request.query_params),
+            )
+            
+            # Resolve user
+            user = await chat_handler.agent.user_resolver.resolve_user(request_context)
+            
+            # Get conversation from conversation store
+            if hasattr(chat_handler.agent, 'conversation_store'):
+                conversation = await chat_handler.agent.conversation_store.get_conversation(
+                    conversation_id, user
+                )
+                
+                if conversation:
+                    return {
+                        "id": conversation.id,
+                        "messages": [
+                            {
+                                "role": msg.role,
+                                "content": msg.content,
+                            }
+                            for msg in conversation.messages
+                        ],
+                        "created_at": conversation.created_at.isoformat() if hasattr(conversation.created_at, 'isoformat') else str(conversation.created_at),
+                        "updated_at": conversation.updated_at.isoformat() if hasattr(conversation.updated_at, 'isoformat') else str(conversation.updated_at),
+                    }
+                else:
+                    raise HTTPException(status_code=404, detail="Conversation not found")
+            else:
+                raise HTTPException(status_code=404, detail="Conversation store not available")
+        except HTTPException:
+            raise
+        except Exception as e:
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=f"Failed to get conversation: {str(e)}")

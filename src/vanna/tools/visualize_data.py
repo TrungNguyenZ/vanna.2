@@ -16,6 +16,7 @@ from vanna.components import (
 
 from .file_system import FileSystem, LocalFileSystem
 from vanna.integrations.plotly import PlotlyChartGenerator
+from vanna.integrations.echarts import EChartsChartGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -36,15 +37,25 @@ class VisualizeDataTool(Tool[VisualizeDataArgs]):
         self,
         file_system: Optional[FileSystem] = None,
         plotly_generator: Optional[PlotlyChartGenerator] = None,
+        echarts_generator: Optional[EChartsChartGenerator] = None,
+        use_echarts: bool = True,  # Default to ECharts
     ):
-        """Initialize the tool with FileSystem and PlotlyChartGenerator.
+        """Initialize the tool with FileSystem and chart generator.
 
         Args:
             file_system: FileSystem implementation for reading CSV files (defaults to LocalFileSystem)
-            plotly_generator: PlotlyChartGenerator for creating Plotly charts (defaults to PlotlyChartGenerator())
+            plotly_generator: PlotlyChartGenerator for creating Plotly charts (optional)
+            echarts_generator: EChartsChartGenerator for creating ECharts (defaults to EChartsChartGenerator())
+            use_echarts: Whether to use ECharts (True) or Plotly (False). Defaults to True.
         """
         self.file_system = file_system or LocalFileSystem()
-        self.plotly_generator = plotly_generator or PlotlyChartGenerator()
+        self.use_echarts = use_echarts
+        if use_echarts:
+            self.echarts_generator = echarts_generator or EChartsChartGenerator()
+            self.plotly_generator = None
+        else:
+            self.plotly_generator = plotly_generator or PlotlyChartGenerator()
+            self.echarts_generator = None
 
     @property
     def name(self) -> str:
@@ -79,9 +90,16 @@ class VisualizeDataTool(Tool[VisualizeDataArgs]):
             # Generate title
             title = args.title or f"Visualization of {args.filename}"
 
-            # Generate chart using PlotlyChartGenerator
-            logger.info("Generating chart...")
-            chart_dict = self.plotly_generator.generate_chart(df, title)
+            # Generate chart using chart generator
+            logger.info(f"Generating chart using {'ECharts' if self.use_echarts else 'Plotly'}...")
+            if self.use_echarts:
+                chart_option = self.echarts_generator.generate_chart(df, title)
+                chart_dict = {"option": chart_option}
+                chart_type = "echarts"
+            else:
+                chart_dict = self.plotly_generator.generate_chart(df, title)
+                chart_type = "plotly"
+            
             logger.info(
                 f"Chart generated, type: {type(chart_dict)}, keys: {list(chart_dict.keys()) if isinstance(chart_dict, dict) else 'N/A'}"
             )
@@ -94,7 +112,7 @@ class VisualizeDataTool(Tool[VisualizeDataArgs]):
             # Create ChartComponent
             logger.info("Creating ChartComponent...")
             chart_component = ChartComponent(
-                chart_type="plotly",
+                chart_type=chart_type,
                 data=chart_dict,
                 title=title,
                 config={

@@ -272,8 +272,8 @@ class DefaultWorkflowHandler(WorkflowHandler):
             )
         else:
             content = (
-                "# 👋 Welcome to Vanna AI\n\n"
-                "I'm your AI data analyst assistant. Ask me anything about your data in plain English!\n\n"
+                "# 👋 Welcome to AI Assistant\n\n"
+                "I'm your AI data analyst assistant\n\n"
                 "Type `/help` to see what I can do."
             )
 

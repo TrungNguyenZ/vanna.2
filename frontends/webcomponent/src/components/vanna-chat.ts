@@ -5,10 +5,12 @@ import { VannaApiClient, ChatStreamChunk } from '../services/api-client.js';
 import { ComponentManager, RichComponent } from './rich-component-system.js';
 import './vanna-status-bar.js';
 import './vanna-progress-tracker.js';
+import './vanna-chat-history.js';
 import './rich-card.js';
 import './rich-task-list.js';
 import './rich-progress-bar.js';
 import './plotly-chart.js';
+import './echarts-chart.js';
 
 @customElement('vanna-chat')
 export class VannaChat extends LitElement {
@@ -24,26 +26,27 @@ export class VannaChat extends LitElement {
         font-family: var(--vanna-font-family-default);
         --chat-primary: var(--vanna-accent-primary-default);
         --chat-primary-stronger: var(--vanna-accent-primary-stronger);
-        --chat-primary-foreground: rgb(255, 255, 255);
+        --chat-primary-foreground: rgb(200, 180, 255);
         --chat-accent-soft: var(--vanna-accent-primary-subtle);
         --chat-outline: var(--vanna-outline-default);
         --chat-surface: var(--vanna-background-root);
         --chat-muted: var(--vanna-background-default);
         --chat-muted-stronger: var(--vanna-background-higher);
-        max-width: 1024px;
-        margin: 0 auto;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        margin: 0;
         background: var(--vanna-background-root);
-        border: 1px solid var(--vanna-outline-dimmer);
-        border-radius: var(--vanna-border-radius-2xl);
-        box-shadow: var(--vanna-shadow-xl);
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
         overflow: hidden;
-        transition: box-shadow var(--vanna-duration-300) ease, transform var(--vanna-duration-300) ease;
+        transition: box-shadow var(--vanna-duration-300) ease, transform var(--vanna-duration-300) ease, border-color var(--vanna-duration-300) ease;
         position: relative;
       }
 
       :host(:hover) {
-        box-shadow: var(--vanna-shadow-2xl);
-        transform: translateY(-2px);
+        /* No hover effects for fullscreen */
       }
 
       :host([theme="dark"]) {
@@ -129,15 +132,19 @@ export class VannaChat extends LitElement {
 
       .chat-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 300px;
-        height: 600px;
-        max-height: 80vh;
+        grid-template-columns: minmax(0, 1fr) 300px 320px;
+        height: 100%;
+        max-height: 100%;
         background: var(--chat-muted);
       }
 
+      .chat-layout.no-history {
+        grid-template-columns: minmax(0, 1fr) 300px;
+      }
+
       :host(.maximized) .chat-layout {
-        height: calc(100vh - 48px);
-        max-height: calc(100vh - 48px);
+        height: 100%;
+        max-height: 100%;
       }
 
       .chat-layout.compact {
@@ -158,8 +165,9 @@ export class VannaChat extends LitElement {
 
       .chat-header {
         padding: var(--vanna-space-6) var(--vanna-space-7);
-        background: linear-gradient(135deg, var(--chat-primary) 0%, var(--chat-primary-stronger) 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(186, 85, 211, 0.2) 50%, rgba(255, 0, 255, 0.15) 100%);
+        border-bottom: 2px solid rgba(186, 85, 211, 0.5);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 30px rgba(186, 85, 211, 0.1);
         display: flex;
         flex-direction: column;
         gap: var(--vanna-space-4);
@@ -212,15 +220,17 @@ export class VannaChat extends LitElement {
         width: 44px;
         height: 44px;
         border-radius: var(--vanna-border-radius-lg);
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(138, 43, 226, 0.3);
         backdrop-filter: blur(10px);
         display: grid;
         place-items: center;
-        font-weight: 600;
-        font-size: 16px;
-        letter-spacing: 0.02em;
-        color: var(--chat-primary-foreground);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 0.08em;
+        color: rgb(255, 255, 255);
+        border: 2px solid rgba(186, 85, 211, 0.8);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.8), inset 0 0 15px rgba(186, 85, 211, 0.4);
+        text-shadow: 0 0 15px rgba(186, 85, 211, 1), 0 0 25px rgba(138, 43, 226, 0.8);
       }
 
       .header-text {
@@ -232,10 +242,13 @@ export class VannaChat extends LitElement {
 
       .chat-title {
         margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        color: var(--chat-primary-foreground);
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: rgb(255, 255, 255);
+        text-shadow: 0 0 15px rgba(186, 85, 211, 1), 0 0 30px rgba(138, 43, 226, 0.8), 0 0 45px rgba(255, 0, 255, 0.6);
+        font-family: var(--vanna-font-family-default);
+        line-height: 1.3;
       }
 
       .chat-subtitle {
@@ -339,7 +352,8 @@ export class VannaChat extends LitElement {
         overflow-y: auto;
         overflow-x: hidden;
         padding: var(--vanna-space-6) var(--vanna-space-6) var(--vanna-space-5);
-        background: linear-gradient(180deg, var(--chat-muted) 0%, var(--chat-surface) 70%);
+        background: radial-gradient(circle at top, rgba(138, 43, 226, 0.15) 0%, transparent 50%), 
+                    linear-gradient(180deg, var(--chat-muted) 0%, var(--chat-surface) 70%);
         scroll-behavior: smooth;
         display: flex;
         flex-direction: column;
@@ -350,30 +364,45 @@ export class VannaChat extends LitElement {
       }
 
       .chat-messages::-webkit-scrollbar {
-        width: 6px;
+        width: 10px;
       }
 
       .chat-messages::-webkit-scrollbar-track {
-        background: transparent;
+        background: rgba(138, 43, 226, 0.1);
+        border-radius: 5px;
+        border: 1px solid rgba(186, 85, 211, 0.2);
       }
 
       .chat-messages::-webkit-scrollbar-thumb {
-        background: var(--vanna-outline-default);
-        border-radius: var(--vanna-border-radius-full);
-        border: 1px solid var(--vanna-background-root);
+        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
+        border-radius: 5px;
+        border: 1px solid rgba(186, 85, 211, 0.4);
+        box-shadow: 
+          0 0 8px rgba(186, 85, 211, 0.5),
+          inset 0 0 4px rgba(138, 43, 226, 0.3);
       }
 
       .chat-messages::-webkit-scrollbar-thumb:hover {
-        background: var(--vanna-outline-hover);
+        background: linear-gradient(180deg, rgba(186, 85, 211, 0.8) 0%, rgba(138, 43, 226, 0.8) 100%);
+        border-color: rgba(186, 85, 211, 0.7);
+        box-shadow: 
+          0 0 12px rgba(186, 85, 211, 0.7),
+          0 0 20px rgba(138, 43, 226, 0.4),
+          inset 0 0 6px rgba(138, 43, 226, 0.4);
       }
 
       :host([theme="dark"]) .chat-messages {
-        background: radial-gradient(circle at top, rgba(99, 102, 241, 0.12), transparent 55%), var(--chat-surface);
+        background: radial-gradient(circle at top, rgba(138, 43, 226, 0.2) 0%, rgba(186, 85, 211, 0.1) 50%, transparent 70%), 
+                    radial-gradient(circle at bottom, rgba(255, 0, 255, 0.1) 0%, transparent 60%),
+                    var(--chat-surface);
       }
 
       :host([theme="dark"]) .chat-messages::-webkit-scrollbar-thumb {
-        background: var(--vanna-outline-default);
-        border-color: var(--vanna-background-higher);
+        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
+        border-color: rgba(186, 85, 211, 0.4);
+        box-shadow: 
+          0 0 8px rgba(186, 85, 211, 0.5),
+          inset 0 0 4px rgba(138, 43, 226, 0.3);
       }
 
       /* Scroll indicator when there's content above */
@@ -426,12 +455,12 @@ export class VannaChat extends LitElement {
       }
 
       .chat-input-area {
-        padding: var(--vanna-space-5) var(--vanna-space-6) var(--vanna-space-6);
+        padding: var(--vanna-space-3) var(--vanna-space-4) var(--vanna-space-4);
         background: var(--chat-surface);
         border-top: 1px solid var(--chat-outline);
         display: flex;
         flex-direction: column;
-        gap: var(--vanna-space-4);
+        gap: var(--vanna-space-2);
         flex-shrink: 0; /* Prevent input area from shrinking */
       }
 
@@ -443,57 +472,62 @@ export class VannaChat extends LitElement {
         display: flex;
         align-items: center;
         gap: var(--vanna-space-2);
-        padding: 6px 8px 6px 18px;
-        border-radius: 999px;
-        background: var(--chat-muted);
-        border: 1px solid var(--chat-muted-stronger);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        transition: border-color var(--vanna-duration-200) ease, box-shadow var(--vanna-duration-200) ease, background var(--vanna-duration-200) ease;
+        padding: 6px 8px 6px 16px;
+        border-radius: var(--vanna-border-radius-xl);
+        background: rgba(10, 10, 20, 0.9);
+        border: 1.5px solid rgba(138, 43, 226, 0.4);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 8px rgba(138, 43, 226, 0.2);
+        transition: all var(--vanna-duration-200) ease;
       }
 
       .chat-input-container:focus-within {
-        border-color: var(--chat-primary);
-        box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.85);
-        background: rgba(255, 255, 255, 0.95);
+        border-color: rgba(186, 85, 211, 0.9);
+        box-shadow: 0 0 15px rgba(138, 43, 226, 0.6), 0 0 30px rgba(186, 85, 211, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        background: rgba(15, 15, 30, 0.95);
       }
 
       :host([theme="dark"]) .chat-input-container {
-        background: rgba(15, 23, 42, 0.65);
-        border-color: rgba(100, 116, 139, 0.45);
-        box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.18);
+        background: rgba(10, 10, 20, 0.8);
+        border-color: rgba(138, 43, 226, 0.4);
+        box-shadow: inset 0 1px 0 rgba(186, 85, 211, 0.2), 0 0 10px rgba(138, 43, 226, 0.2);
       }
 
       :host([theme="dark"]) .chat-input-container:focus-within {
-        border-color: rgba(129, 140, 248, 0.55);
-        box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.45), inset 0 1px 0 rgba(148, 163, 184, 0.25);
-        background: rgba(30, 41, 59, 0.88);
+        border-color: rgba(186, 85, 211, 0.8);
+        box-shadow: 0 0 15px rgba(138, 43, 226, 0.6), 0 0 30px rgba(186, 85, 211, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        background: rgba(15, 15, 30, 0.9);
       }
 
       .message-input {
         flex: 1;
         border: none;
         background: transparent;
-        font-size: 15px;
+        font-size: 14px;
         font-family: var(--vanna-font-family-default);
         line-height: 1.5;
-        color: var(--vanna-foreground-default);
+        color: rgb(255, 255, 255);
         resize: none;
-        min-height: 48px;
-        max-height: 140px;
-        padding: 12px 0;
+        min-height: 40px;
+        max-height: 120px;
+        padding: 10px 0;
         outline: none;
+        text-shadow: 0 0 6px rgba(186, 85, 211, 0.6), 0 0 12px rgba(138, 43, 226, 0.4);
+        font-weight: 400;
       }
 
       :host([theme="dark"]) .message-input {
-        color: rgba(226, 232, 240, 0.95);
+        color: rgb(255, 255, 255);
+        text-shadow: 0 0 8px rgba(186, 85, 211, 0.8), 0 0 15px rgba(138, 43, 226, 0.6);
       }
 
       .message-input::placeholder {
-        color: rgba(71, 85, 105, 0.8);
+        color: rgba(200, 180, 255, 0.6);
+        text-shadow: 0 0 5px rgba(138, 43, 226, 0.4);
       }
 
       :host([theme="dark"]) .message-input::placeholder {
-        color: rgba(148, 163, 184, 0.65);
+        color: rgba(200, 180, 255, 0.65);
+        text-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
       }
 
       .message-input:focus {
@@ -510,40 +544,48 @@ export class VannaChat extends LitElement {
       }
 
       .send-button {
-        width: 48px;
-        height: 48px;
-        border-radius: 999px;
-        border: none;
-        background: linear-gradient(135deg, var(--chat-primary-stronger), var(--chat-primary));
-        color: var(--chat-primary-foreground);
+        width: 40px;
+        height: 40px;
+        border-radius: var(--vanna-border-radius-lg);
+        border: 2px solid rgba(186, 85, 211, 0.8);
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.95), rgba(186, 85, 211, 0.95));
+        color: rgb(255, 255, 255);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform var(--vanna-duration-200) ease, box-shadow var(--vanna-duration-200) ease, filter var(--vanna-duration-200) ease;
-        box-shadow: 0 18px 38px -24px rgba(79, 70, 229, 0.8);
+        transition: all var(--vanna-duration-200) ease;
+        box-shadow: 0 0 15px rgba(138, 43, 226, 0.7), 0 0 30px rgba(186, 85, 211, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.12);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        flex-shrink: 0;
       }
 
       .send-button:hover {
-        transform: translateY(-1px) scale(1.02);
-        box-shadow: 0 25px 45px -24px rgba(79, 70, 229, 0.85);
+        transform: translateY(-1px) scale(1.05);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.9), 0 0 40px rgba(186, 85, 211, 0.7), 0 0 60px rgba(255, 0, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 0, 255, 0.9);
+        background: linear-gradient(135deg, rgba(186, 85, 211, 1), rgba(255, 0, 255, 0.85));
       }
 
       .send-button:active {
-        transform: translateY(0) scale(0.98);
+        transform: translateY(0) scale(1.0);
+        box-shadow: 0 0 15px rgba(138, 43, 226, 0.7), 0 0 30px rgba(186, 85, 211, 0.5);
       }
 
       .send-button:disabled {
-        background: rgba(148, 163, 184, 0.35);
-        color: rgba(71, 85, 105, 0.7);
+        background: linear-gradient(135deg, rgba(100, 100, 100, 0.4), rgba(80, 80, 80, 0.4));
+        color: rgba(150, 150, 150, 0.5);
         cursor: not-allowed;
         transform: none;
-        box-shadow: none;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        border-color: rgba(100, 100, 100, 0.4);
       }
 
       .send-button svg {
         width: 18px;
         height: 18px;
+        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
       }
 
       .sidebar {
@@ -555,19 +597,42 @@ export class VannaChat extends LitElement {
         overflow-y: auto;
         overflow-x: hidden;
         min-height: 0;
+        width: 300px;
+      }
+
+      .history-sidebar {
+        width: 320px;
+        padding: 0;
+        background: var(--vanna-background-higher);
+        border-left: 2px solid rgba(138, 43, 226, 0.3);
       }
 
       .sidebar::-webkit-scrollbar {
-        width: 6px;
+        width: 10px;
       }
 
       .sidebar::-webkit-scrollbar-track {
-        background: transparent;
+        background: rgba(138, 43, 226, 0.1);
+        border-radius: 5px;
+        border: 1px solid rgba(186, 85, 211, 0.2);
       }
 
       .sidebar::-webkit-scrollbar-thumb {
-        background: var(--vanna-outline-default);
-        border-radius: var(--vanna-border-radius-full);
+        background: linear-gradient(180deg, rgba(186, 85, 211, 0.6) 0%, rgba(138, 43, 226, 0.6) 100%);
+        border-radius: 5px;
+        border: 1px solid rgba(186, 85, 211, 0.4);
+        box-shadow: 
+          0 0 8px rgba(186, 85, 211, 0.5),
+          inset 0 0 4px rgba(138, 43, 226, 0.3);
+      }
+
+      .sidebar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, rgba(186, 85, 211, 0.8) 0%, rgba(138, 43, 226, 0.8) 100%);
+        border-color: rgba(186, 85, 211, 0.7);
+        box-shadow: 
+          0 0 12px rgba(186, 85, 211, 0.7),
+          0 0 20px rgba(138, 43, 226, 0.4),
+          inset 0 0 6px rgba(138, 43, 226, 0.4);
       }
 
       :host([theme="dark"]) .sidebar {
@@ -580,73 +645,93 @@ export class VannaChat extends LitElement {
         align-items: center;
         justify-content: center;
         text-align: center;
-        color: var(--vanna-foreground-dimmer);
         padding: var(--vanna-space-12) var(--vanna-space-8);
         margin: var(--vanna-space-8) var(--vanna-space-6);
         font-size: 15px;
         font-weight: 500;
         line-height: 1.6;
         background: linear-gradient(135deg, 
-          rgba(255, 255, 255, 0.95) 0%, 
-          rgba(248, 250, 252, 0.9) 50%,
-          rgba(241, 245, 249, 0.85) 100%);
+          rgba(138, 43, 226, 0.15) 0%, 
+          rgba(186, 85, 211, 0.1) 50%,
+          rgba(138, 43, 226, 0.08) 100%);
         border-radius: var(--vanna-border-radius-2xl);
-        border: 2px dashed var(--vanna-accent-primary-default);
+        border: 2px dashed rgba(186, 85, 211, 0.5);
         box-shadow: 
-          var(--vanna-shadow-sm),
-          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+          0 0 20px rgba(138, 43, 226, 0.3),
+          0 0 40px rgba(186, 85, 211, 0.2),
+          inset 0 0 30px rgba(138, 43, 226, 0.1);
         backdrop-filter: blur(8px);
         transition: all var(--vanna-duration-300) ease;
       }
 
       .empty-state:hover {
-        border-color: var(--vanna-accent-primary-stronger);
+        border-color: rgba(186, 85, 211, 0.8);
         transform: translateY(-2px);
         box-shadow: 
-          var(--vanna-shadow-lg),
-          inset 0 1px 0 rgba(255, 255, 255, 0.9);
+          0 0 30px rgba(138, 43, 226, 0.4),
+          0 0 60px rgba(186, 85, 211, 0.3),
+          inset 0 0 40px rgba(138, 43, 226, 0.15);
+        background: linear-gradient(135deg, 
+          rgba(138, 43, 226, 0.2) 0%, 
+          rgba(186, 85, 211, 0.15) 50%,
+          rgba(138, 43, 226, 0.12) 100%);
       }
 
       :host([theme="dark"]) .empty-state {
-        color: var(--vanna-foreground-dimmer);
         background: linear-gradient(135deg, 
-          rgba(24, 29, 39, 0.95) 0%, 
-          rgba(31, 39, 51, 0.9) 50%,
-          rgba(17, 21, 28, 0.85) 100%);
-        border-color: var(--vanna-accent-primary-default);
+          rgba(138, 43, 226, 0.15) 0%, 
+          rgba(186, 85, 211, 0.1) 50%,
+          rgba(138, 43, 226, 0.08) 100%);
+        border-color: rgba(186, 85, 211, 0.5);
         box-shadow: 
-          var(--vanna-shadow-md),
-          inset 0 1px 0 rgba(129, 140, 248, 0.2);
+          0 0 20px rgba(138, 43, 226, 0.3),
+          0 0 40px rgba(186, 85, 211, 0.2),
+          inset 0 0 30px rgba(138, 43, 226, 0.1);
       }
 
       :host([theme="dark"]) .empty-state:hover {
-        border-color: var(--vanna-accent-primary-hover);
+        border-color: rgba(186, 85, 211, 0.8);
         box-shadow: 
-          var(--vanna-shadow-xl),
-          inset 0 1px 0 rgba(129, 140, 248, 0.3);
+          0 0 30px rgba(138, 43, 226, 0.4),
+          0 0 60px rgba(186, 85, 211, 0.3),
+          inset 0 0 40px rgba(138, 43, 226, 0.15);
+        background: linear-gradient(135deg, 
+          rgba(138, 43, 226, 0.2) 0%, 
+          rgba(186, 85, 211, 0.15) 50%,
+          rgba(138, 43, 226, 0.12) 100%);
       }
 
       .empty-state-icon {
         width: 64px;
         height: 64px;
         margin: 0 auto var(--vanna-space-6);
-        opacity: 0.7;
-        color: var(--vanna-accent-primary-default);
-        filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2));
+        opacity: 0.9;
+        color: rgba(186, 85, 211, 1);
+        filter: drop-shadow(0 0 10px rgba(186, 85, 211, 0.8)) 
+                drop-shadow(0 0 20px rgba(138, 43, 226, 0.6));
       }
 
       .empty-state-text {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--vanna-foreground-default);
-        margin-bottom: var(--vanna-space-2);
+        font-size: 20px;
+        font-weight: 700;
+        color: rgb(255, 255, 255);
+        margin-bottom: var(--vanna-space-3);
+        text-shadow: 
+          0 0 15px rgba(186, 85, 211, 1), 
+          0 0 30px rgba(138, 43, 226, 0.8), 
+          0 0 45px rgba(255, 0, 255, 0.6);
+        letter-spacing: 0.08em;
+        line-height: 1.4;
       }
 
       .empty-state-subtitle {
-        font-size: 14px;
-        color: var(--vanna-foreground-dimmest);
-        opacity: 0.8;
-        font-weight: 400;
+        font-size: 15px;
+        color: rgba(200, 180, 255, 0.9);
+        opacity: 1;
+        font-weight: 500;
+        text-shadow: 0 0 8px rgba(138, 43, 226, 0.6);
+        letter-spacing: 0.03em;
+        line-height: 1.5;
       }
 
       @media (max-width: 880px) {
@@ -707,11 +792,12 @@ export class VannaChat extends LitElement {
     `
   ];
 
-  @property() title = 'Vanna AI Chat';
+  @property() title = 'AI Chat';
   @property() placeholder = 'Ask me anything...';
   @property({ type: Boolean }) disabled = false;
   @property({ type: Boolean }) showProgress = true;
-  @property({ type: Boolean }) allowMinimize = true;
+  @property({ type: Boolean }) showHistory = true;
+  @property({ type: Boolean }) allowMinimize = false;
   @property({ reflect: true }) theme = 'light';
   @property({ attribute: 'api-base' }) apiBaseUrl = '';
   @property({ attribute: 'sse-endpoint' }) sseEndpoint = '/api/vanna/v2/chat_sse';
@@ -885,11 +971,6 @@ export class VannaChat extends LitElement {
   private async _sendMessageInternal(messageText: string): Promise<boolean> {
     console.log('_sendMessageInternal called with:', messageText);
 
-    // Auto-maximize window when user sends a message (if not already maximized or minimized)
-    if (this.windowState !== 'maximized' && this.windowState !== 'minimized') {
-      this.maximizeWindow();
-    }
-
     // Create user message as a rich component and send to ComponentManager
     const userRichComponent: RichComponent = {
       id: `user-message-${Date.now()}`,
@@ -955,6 +1036,10 @@ export class VannaChat extends LitElement {
 
       // Stream the response
       await this.handleStreamingResponse(request);
+      
+      // Save conversation to localStorage for history
+      this.saveConversationToHistory(this.conversationId, messageText);
+      
       return true; // Success
 
     } catch (error) {
@@ -987,46 +1072,7 @@ export class VannaChat extends LitElement {
     return initials || 'VA';
   }
 
-  private minimizeWindow(e?: Event) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-    console.log('minimizeWindow called, current state:', this._windowState);
-    this.windowState = 'minimized';
-    console.log('minimizeWindow set state to:', this._windowState);
-    this.dispatchEvent(new CustomEvent('window-state-changed', {
-      detail: { state: 'minimized' },
-      bubbles: true,
-      composed: true
-    }));
-  }
-
-  private maximizeWindow(e?: Event) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-    this.windowState = 'maximized';
-    this.dispatchEvent(new CustomEvent('window-state-changed', {
-      detail: { state: 'maximized' },
-      bubbles: true,
-      composed: true
-    }));
-  }
-
-  private restoreWindow(e?: Event) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-    this.windowState = 'normal';
-    this.dispatchEvent(new CustomEvent('window-state-changed', {
-      detail: { state: 'normal' },
-      bubbles: true,
-      composed: true
-    }));
-  }
+  // Window control methods removed - no minimize/maximize functionality
 
 
   addMessage(content: string, type: 'user' | 'assistant') {
@@ -1313,17 +1359,10 @@ export class VannaChat extends LitElement {
 
   render() {
     return html`
-      <!-- Minimized icon - shown only when minimized via CSS and allowMinimize is true -->
-      ${this.allowMinimize ? html`
-        <div class="minimized-icon" @click=${this.restoreWindow}>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-          </svg>
-        </div>
-      ` : ''}
+      <!-- Minimized icon removed -->
 
       <!-- Main chat interface -->
-      <div class="chat-layout ${this.showProgress ? '' : 'compact'}">
+      <div class="chat-layout ${this.showProgress ? '' : 'compact'} ${this.showHistory ? '' : 'no-history'}">
         <div class="chat-main">
           <div class="chat-header">
             <div class="header-top">
@@ -1333,39 +1372,7 @@ export class VannaChat extends LitElement {
                   <h2 class="chat-title">${this.title}</h2>
                 </div>
               </div>
-              <div class="header-top-actions">
-                <div class="window-controls">
-                  ${this.allowMinimize ? html`
-                    <button
-                      class="window-control-btn minimize"
-                      @click=${this.minimizeWindow}
-                      title="Minimize">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M5 12h14v2H5z"/>
-                      </svg>
-                    </button>
-                  ` : ''}
-                  ${this.windowState === 'maximized' ? html`
-                    <button
-                      class="window-control-btn restore"
-                      @click=${this.restoreWindow}
-                      title="Restore">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 8v2h2V8h6v6h-2v2h4V6H8zm-2 4v8h8v-2H8v-6H6z"/>
-                      </svg>
-                    </button>
-                  ` : html`
-                    <button
-                      class="window-control-btn maximize"
-                      @click=${this.maximizeWindow}
-                      title="Maximize">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M5 5v14h14V5H5zm2 2h10v10H7V7z"/>
-                      </svg>
-                    </button>
-                  `}
-                </div>
-              </div>
+              <!-- Window controls removed -->
             </div>
           </div>
 
@@ -1422,7 +1429,192 @@ export class VannaChat extends LitElement {
             <vanna-progress-tracker theme=${this.theme}></vanna-progress-tracker>
           </div>
         ` : ''}
+        ${this.showHistory ? html`
+          <div class="sidebar history-sidebar">
+            <vanna-chat-history 
+              api-base=${this.apiBaseUrl}
+              current-conversation-id=${this.conversationId}
+              theme=${this.theme}
+              @conversation-selected=${this.handleConversationSelected}
+              @new-conversation=${this.handleNewConversation}
+              @conversation-deleted=${this.handleConversationDeleted}>
+            </vanna-chat-history>
+          </div>
+        ` : ''}
       </div>
     `;
+  }
+
+  private handleConversationSelected(e: CustomEvent) {
+    const { conversationId } = e.detail;
+    if (conversationId && conversationId !== this.conversationId) {
+      this.conversationId = conversationId;
+      // Reload conversation messages
+      this.loadConversation(conversationId);
+    }
+  }
+
+  private handleConversationDeleted(e: CustomEvent) {
+    const { conversationId: deletedId } = e.detail;
+    
+    // If the deleted conversation is the current one, create a new conversation
+    if (deletedId === this.conversationId) {
+      // Generate new conversation ID
+      this.conversationId = this.generateId();
+      
+      // Clear messages
+      if (this.componentManager) {
+        this.componentManager.clear();
+        const container = this.shadowRoot?.querySelector('.rich-components-container') as HTMLElement;
+        if (container) {
+          container.innerHTML = '';
+        }
+      }
+      
+      // Clear input
+      const textarea = this.shadowRoot?.querySelector('.message-input') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.value = '';
+        this.currentMessage = '';
+      }
+      
+      // Update empty state
+      this.updateEmptyState();
+      
+      // Request starter UI
+      this.requestStarterUI();
+    }
+  }
+
+  private handleNewConversation() {
+    // Always create new conversation when button is clicked
+    // Generate new conversation ID
+    this.conversationId = this.generateId();
+    
+    // Clear current messages
+    // Note: componentManager.clear() already clears innerHTML and ensures styles are injected
+    if (this.componentManager) {
+      this.componentManager.clear();
+      // Don't call innerHTML = '' here as it will remove the style element injected by clear()
+    }
+    
+    // Clear input
+    const textarea = this.shadowRoot?.querySelector('.message-input') as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.value = '';
+      this.currentMessage = '';
+    }
+    
+    // Clear status
+    this.clearStatus();
+    
+    // Update empty state
+    this.updateEmptyState();
+    
+    // Request starter UI for the new conversation
+    // Use setTimeout to ensure DOM is ready and styles are applied
+    setTimeout(() => {
+      this.requestStarterUI();
+    }, 0);
+    
+    // Notify history component to refresh
+    const historyComponent = this.shadowRoot?.querySelector('vanna-chat-history') as any;
+    if (historyComponent && typeof historyComponent.loadConversations === 'function') {
+      historyComponent.loadConversations();
+    }
+  }
+
+  private async loadConversation(conversationId: string) {
+    // Clear current messages
+    if (this.componentManager) {
+      const container = this.shadowRoot?.querySelector('.rich-components-container') as HTMLElement;
+      if (container) {
+        container.innerHTML = '';
+      }
+    }
+
+    // Load conversation from API
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/vanna/v2/conversations/${conversationId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Render conversation messages
+        if (data.messages && this.componentManager) {
+          for (const msg of data.messages) {
+            this.addMessage(msg.content, msg.role);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
+      // Try loading from localStorage as fallback
+      this.loadConversationFromLocalStorage(conversationId);
+    }
+  }
+
+  private saveConversationToHistory(conversationId: string, firstMessage: string) {
+    try {
+      const stored = localStorage.getItem('vanna_conversations');
+      const conversations = stored ? JSON.parse(stored) : [];
+      
+      // Check if conversation already exists
+      const existingIndex = conversations.findIndex((c: any) => c.id === conversationId);
+      const conversationData = {
+        id: conversationId,
+        messages: [
+          { role: 'user', content: firstMessage }
+        ],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      
+      if (existingIndex >= 0) {
+        // Update existing conversation
+        conversations[existingIndex] = {
+          ...conversations[existingIndex],
+          updated_at: new Date().toISOString(),
+        };
+      } else {
+        // Add new conversation
+        conversations.unshift(conversationData);
+        // Keep only last 50 conversations
+        if (conversations.length > 50) {
+          conversations.pop();
+        }
+      }
+      
+      localStorage.setItem('vanna_conversations', JSON.stringify(conversations));
+      
+      // Notify history component to refresh
+      const historyComponent = this.shadowRoot?.querySelector('vanna-chat-history') as any;
+      if (historyComponent && typeof historyComponent.loadConversations === 'function') {
+        historyComponent.loadConversations();
+      }
+    } catch (error) {
+      console.error('Failed to save conversation to history:', error);
+    }
+  }
+
+  private loadConversationFromLocalStorage(conversationId: string) {
+    try {
+      const stored = localStorage.getItem('vanna_conversations');
+      if (stored) {
+        const conversations = JSON.parse(stored);
+        const conversation = conversations.find((c: any) => c.id === conversationId);
+        if (conversation && conversation.messages && this.componentManager) {
+          for (const msg of conversation.messages) {
+            this.addMessage(msg.content, msg.role);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load conversation from localStorage:', error);
+    }
   }
 }

@@ -1,55 +1,60 @@
 import { css } from 'lit';
 
-// Vanna 2.0 design tokens - Data-First Agents branding
+// Vanna 2.0 design tokens - Neon Cyberpunk Theme (Black & Purple)
 export const vannaDesignTokens = css`
   :host {
-    /* Vanna 2.0 Brand Colors */
-    --vanna-navy: rgb(2, 61, 96);
-    --vanna-cream: rgb(231, 225, 207);
-    --vanna-teal: rgb(21, 168, 168);
-    --vanna-orange: rgb(254, 93, 38);
-    --vanna-magenta: rgb(191, 19, 99);
+    /* Neon Cyberpunk Brand Colors */
+    --vanna-navy: rgb(10, 10, 20);
+    --vanna-cream: rgb(200, 180, 255);
+    --vanna-teal: rgb(138, 43, 226);
+    --vanna-orange: rgb(255, 0, 255);
+    --vanna-magenta: rgb(186, 85, 211);
 
-    /* Color Palette - Light mode (default) */
-    --vanna-background-root: rgb(255, 255, 255);
-    --vanna-background-default: rgb(231, 225, 207);
-    --vanna-background-higher: rgb(244, 246, 248);
-    --vanna-background-highest: rgb(229, 231, 235);
-    --vanna-background-subtle: rgb(248, 250, 252);
-    --vanna-background-lower: rgb(239, 242, 245);
+    /* Color Palette - Dark mode (default) - Neon Cyberpunk */
+    --vanna-background-root: rgb(5, 5, 10);
+    --vanna-background-default: rgb(10, 10, 20);
+    --vanna-background-higher: rgb(15, 15, 30);
+    --vanna-background-highest: rgb(20, 20, 40);
+    --vanna-background-subtle: rgb(8, 8, 18);
+    --vanna-background-lower: rgb(3, 3, 8);
 
-    --vanna-foreground-default: rgb(2, 61, 96);
-    --vanna-foreground-dimmer: rgb(71, 85, 105);
-    --vanna-foreground-dimmest: rgb(100, 116, 139);
+    --vanna-foreground-default: rgb(200, 180, 255);
+    --vanna-foreground-dimmer: rgb(150, 130, 220);
+    --vanna-foreground-dimmest: rgb(120, 100, 200);
 
-    --vanna-accent-primary-default: rgb(21, 168, 168);
-    --vanna-accent-primary-stronger: rgb(2, 61, 96);
-    --vanna-accent-primary-strongest: rgb(2, 61, 96);
-    --vanna-accent-primary-subtle: rgba(21, 168, 168, 0.1);
-    --vanna-accent-primary-hover: rgb(21, 168, 168);
+    /* Neon Purple Accent Colors */
+    --vanna-accent-primary-default: rgb(138, 43, 226);
+    --vanna-accent-primary-stronger: rgb(186, 85, 211);
+    --vanna-accent-primary-strongest: rgb(255, 0, 255);
+    --vanna-accent-primary-subtle: rgba(138, 43, 226, 0.2);
+    --vanna-accent-primary-hover: rgb(186, 85, 211);
 
-    --vanna-accent-positive-default: rgb(21, 168, 168);
-    --vanna-accent-positive-stronger: rgb(2, 61, 96);
-    --vanna-accent-positive-subtle: rgba(21, 168, 168, 0.1);
+    --vanna-accent-positive-default: rgb(0, 255, 150);
+    --vanna-accent-positive-stronger: rgb(0, 255, 200);
+    --vanna-accent-positive-subtle: rgba(0, 255, 150, 0.2);
 
-    --vanna-accent-negative-default: rgb(239, 68, 68);
-    --vanna-accent-negative-stronger: rgb(220, 38, 38);
-    --vanna-accent-negative-subtle: rgba(239, 68, 68, 0.1);
+    --vanna-accent-negative-default: rgb(255, 0, 100);
+    --vanna-accent-negative-stronger: rgb(255, 50, 150);
+    --vanna-accent-negative-subtle: rgba(255, 0, 100, 0.2);
 
-    --vanna-accent-warning-default: rgb(254, 93, 38);
-    --vanna-accent-warning-stronger: rgb(254, 93, 38);
-    --vanna-accent-warning-subtle: rgba(254, 93, 38, 0.1);
+    --vanna-accent-warning-default: rgb(255, 200, 0);
+    --vanna-accent-warning-stronger: rgb(255, 255, 0);
+    --vanna-accent-warning-subtle: rgba(255, 200, 0, 0.2);
 
-    /* Outline/Border colors */
-    --vanna-outline-default: rgba(21, 168, 168, 0.3);
-    --vanna-outline-dimmer: rgb(241, 245, 249);
-    --vanna-outline-dimmest: rgb(248, 250, 252);
-    --vanna-outline-hover: rgb(21, 168, 168);
+    /* Outline/Border colors - Neon Glow */
+    --vanna-outline-default: rgba(138, 43, 226, 0.5);
+    --vanna-outline-dimmer: rgba(138, 43, 226, 0.3);
+    --vanna-outline-dimmest: rgba(138, 43, 226, 0.15);
+    --vanna-outline-hover: rgb(186, 85, 211);
 
-    /* Typography */
-    --vanna-font-family-default: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    --vanna-font-family-serif: "Roboto Slab", ui-serif, Georgia, serif;
-    --vanna-font-family-mono: "Space Mono", ui-monospace, SFMono-Regular, "SF Mono", Monaco, Inconsolata, "Roboto Mono", "Ubuntu Mono", monospace;
+    /* Typography - Futuristic Fonts */
+    --vanna-font-family-default: "Orbitron", "Rajdhani", "Exo 2", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --vanna-font-family-serif: "Orbitron", ui-serif, Georgia, serif;
+    --vanna-font-family-mono: "Fira Code", "JetBrains Mono", "Space Mono", ui-monospace, SFMono-Regular, "SF Mono", Monaco, Inconsolata, "Roboto Mono", monospace;
+    
+    /* Neon Text Effects */
+    --vanna-text-glow: 0 0 10px rgba(138, 43, 226, 0.8), 0 0 20px rgba(138, 43, 226, 0.6), 0 0 30px rgba(186, 85, 211, 0.4);
+    --vanna-text-glow-strong: 0 0 15px rgba(186, 85, 211, 1), 0 0 30px rgba(186, 85, 211, 0.8), 0 0 45px rgba(255, 0, 255, 0.6);
 
     /* Spacing scale */
     --vanna-space-0: 0px;
@@ -105,47 +110,48 @@ export const vannaDesignTokens = css`
     --vanna-chat-avatar-size: 40px;
   }
 
-  /* Dark theme overrides */
+  /* Dark theme - Enhanced Neon (same as default for consistency) */
   :host([theme="dark"]) {
-    --vanna-background-root: rgb(9, 11, 17);
-    --vanna-background-default: rgb(15, 18, 25);
-    --vanna-background-higher: rgb(24, 29, 39);
-    --vanna-background-highest: rgb(31, 39, 51);
-    --vanna-background-subtle: rgb(17, 21, 28);
-    --vanna-background-lower: rgb(6, 8, 12);
+    --vanna-background-root: rgb(5, 5, 10);
+    --vanna-background-default: rgb(10, 10, 20);
+    --vanna-background-higher: rgb(15, 15, 30);
+    --vanna-background-highest: rgb(20, 20, 40);
+    --vanna-background-subtle: rgb(8, 8, 18);
+    --vanna-background-lower: rgb(3, 3, 8);
 
-    --vanna-foreground-default: rgb(248, 250, 252);
-    --vanna-foreground-dimmer: rgb(203, 213, 225);
-    --vanna-foreground-dimmest: rgb(148, 163, 184);
+    --vanna-foreground-default: rgb(200, 180, 255);
+    --vanna-foreground-dimmer: rgb(150, 130, 220);
+    --vanna-foreground-dimmest: rgb(120, 100, 200);
 
-    --vanna-accent-primary-default: rgb(21, 168, 168);
-    --vanna-accent-primary-stronger: rgb(21, 168, 168);
-    --vanna-accent-primary-strongest: rgb(2, 61, 96);
-    --vanna-accent-primary-subtle: rgba(21, 168, 168, 0.15);
-    --vanna-accent-primary-hover: rgb(21, 168, 168);
+    --vanna-accent-primary-default: rgb(138, 43, 226);
+    --vanna-accent-primary-stronger: rgb(186, 85, 211);
+    --vanna-accent-primary-strongest: rgb(255, 0, 255);
+    --vanna-accent-primary-subtle: rgba(138, 43, 226, 0.25);
+    --vanna-accent-primary-hover: rgb(186, 85, 211);
 
-    --vanna-accent-positive-default: rgb(21, 168, 168);
-    --vanna-accent-positive-stronger: rgb(21, 168, 168);
-    --vanna-accent-positive-subtle: rgba(21, 168, 168, 0.15);
+    --vanna-accent-positive-default: rgb(0, 255, 150);
+    --vanna-accent-positive-stronger: rgb(0, 255, 200);
+    --vanna-accent-positive-subtle: rgba(0, 255, 150, 0.25);
 
-    --vanna-accent-negative-default: rgb(248, 113, 113);
-    --vanna-accent-negative-stronger: rgb(239, 68, 68);
-    --vanna-accent-negative-subtle: rgba(248, 113, 113, 0.15);
+    --vanna-accent-negative-default: rgb(255, 0, 100);
+    --vanna-accent-negative-stronger: rgb(255, 50, 150);
+    --vanna-accent-negative-subtle: rgba(255, 0, 100, 0.25);
 
-    --vanna-accent-warning-default: rgb(254, 93, 38);
-    --vanna-accent-warning-stronger: rgb(254, 93, 38);
-    --vanna-accent-warning-subtle: rgba(254, 93, 38, 0.15);
+    --vanna-accent-warning-default: rgb(255, 200, 0);
+    --vanna-accent-warning-stronger: rgb(255, 255, 0);
+    --vanna-accent-warning-subtle: rgba(255, 200, 0, 0.25);
 
-    --vanna-outline-default: rgba(21, 168, 168, 0.3);
-    --vanna-outline-dimmer: rgb(31, 41, 55);
-    --vanna-outline-dimmest: rgb(17, 24, 39);
-    --vanna-outline-hover: rgb(21, 168, 168);
+    --vanna-outline-default: rgba(138, 43, 226, 0.6);
+    --vanna-outline-dimmer: rgba(138, 43, 226, 0.4);
+    --vanna-outline-dimmest: rgba(138, 43, 226, 0.2);
+    --vanna-outline-hover: rgb(186, 85, 211);
 
-    --vanna-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
-    --vanna-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5);
-    --vanna-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-    --vanna-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-    --vanna-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    --vanna-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    /* Enhanced Neon Shadows */
+    --vanna-shadow-xs: 0 1px 2px 0 rgba(138, 43, 226, 0.3);
+    --vanna-shadow-sm: 0 1px 3px 0 rgba(138, 43, 226, 0.4), 0 1px 2px -1px rgba(186, 85, 211, 0.3);
+    --vanna-shadow-md: 0 4px 6px -1px rgba(138, 43, 226, 0.5), 0 2px 4px -2px rgba(186, 85, 211, 0.4);
+    --vanna-shadow-lg: 0 10px 15px -3px rgba(138, 43, 226, 0.6), 0 4px 6px -4px rgba(186, 85, 211, 0.5);
+    --vanna-shadow-xl: 0 20px 25px -5px rgba(138, 43, 226, 0.7), 0 8px 10px -6px rgba(186, 85, 211, 0.6);
+    --vanna-shadow-2xl: 0 25px 50px -12px rgba(138, 43, 226, 0.8), 0 0 30px rgba(186, 85, 211, 0.5);
   }
 `;
