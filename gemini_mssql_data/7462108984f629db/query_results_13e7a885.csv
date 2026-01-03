@@ -1,0 +1,30 @@
+table_schema,table_name
+dbo,Employees
+dbo,Categories
+dbo,Customers
+dbo,Shippers
+dbo,Suppliers
+dbo,Orders
+dbo,Products
+dbo,Order Details
+dbo,Customer and Suppliers by City
+dbo,Alphabetical list of products
+dbo,Current Product List
+dbo,Orders Qry
+dbo,Products Above Average Price
+dbo,Products by Category
+dbo,Quarterly Orders
+dbo,Invoices
+dbo,Order Details Extended
+dbo,Order Subtotals
+dbo,Product Sales for 1997
+dbo,Category Sales for 1997
+dbo,Sales by Category
+dbo,Sales Totals by Amount
+dbo,Summary of Sales by Quarter
+dbo,Summary of Sales by Year
+dbo,CustomerCustomerDemo
+dbo,CustomerDemographics
+dbo,Region
+dbo,Territories
+dbo,EmployeeTerritories
