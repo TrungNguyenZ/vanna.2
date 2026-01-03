@@ -317,3 +317,12 @@ docker tag trungnguyen131/vanna-agents:latest trungnguyen131/vanna-agents:2.0.1
 docker push trungnguyen131/vanna-agents:latest
 
 
+# Tạo virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+
+# Cài đặt package (tùy chọn - nếu muốn dùng lệnh `vanna`)
+pip install -e ".[all]"
+
+# Chạy server
+vanna --example gemini_mssql --port 8000 --model gemini-2.5-pro
