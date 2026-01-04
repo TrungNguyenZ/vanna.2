@@ -11,6 +11,8 @@ import "./rich-task-list.js";
 import "./rich-progress-bar.js";
 import "./plotly-chart.js";
 import "./echarts-chart.js";
+import "./training-data-manager.js";
+import "./database-settings-manager.js";
 
 @customElement("vanna-chat")
 export class VannaChat extends LitElement {
@@ -208,6 +210,8 @@ export class VannaChat extends LitElement {
         border-right: 1px solid var(--chat-outline);
         background: var(--chat-surface);
         min-height: 0;
+        flex: 1;
+        overflow: hidden;
       }
 
       .chat-layout.compact .chat-main {
@@ -454,17 +458,16 @@ export class VannaChat extends LitElement {
       }
 
       .chat-messages {
-        flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
         padding: var(--vanna-space-6) var(--vanna-space-6) var(--vanna-space-5);
-        background: var(--chat-muted);
+        background: #f5f7fa;
         scroll-behavior: smooth;
         display: flex;
         flex-direction: column;
         gap: var(--vanna-space-4);
         min-height: 0;
-        max-height: 100%;
+        height: calc(100vh - 196px);
         position: relative;
       }
 
@@ -492,7 +495,7 @@ export class VannaChat extends LitElement {
       }
 
       :host([theme="dark"]) .chat-messages {
-        background: var(--chat-surface);
+        background: #1e293b;
       }
 
       :host([theme="dark"]) .chat-messages::-webkit-scrollbar-thumb {
@@ -616,6 +619,37 @@ export class VannaChat extends LitElement {
         border: 1.5px solid rgba(225, 230, 238, 1);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         transition: all var(--vanna-duration-200) ease;
+      }
+
+      .input-options {
+        display: flex;
+        align-items: center;
+        margin-right: var(--vanna-space-2);
+      }
+
+      .save-training-checkbox {
+        display: flex;
+        align-items: center;
+        gap: var(--vanna-space-2);
+        font-size: 12px;
+        color: rgb(154, 166, 184);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .save-training-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: rgb(47, 110, 255);
+      }
+
+      .save-training-checkbox span {
+        white-space: nowrap;
+      }
+
+      :host([theme="dark"]) .save-training-checkbox {
+        color: rgb(203, 213, 225);
       }
 
       .chat-input-container:focus-within {
@@ -949,6 +983,7 @@ export class VannaChat extends LitElement {
   @state() private currentMessage = "";
   @state() private status: "idle" | "working" | "error" | "success" = "idle";
   @state() private _windowState: "normal" | "maximized" | "minimized" = "normal";
+  @state() private saveToTraining = false;
 
   @property({ reflect: false })
   get windowState() {
@@ -970,7 +1005,8 @@ export class VannaChat extends LitElement {
     super();
     // Note: Don't create apiClient here - attributes haven't been set yet!
     // It will be created lazily in getApiClient() or firstUpdated()
-    this.conversationId = this.generateId();
+    // Don't create conversationId here - only create when user sends first message
+    this.conversationId = "";
   }
 
   /**
@@ -1040,9 +1076,10 @@ export class VannaChat extends LitElement {
    */
   private async requestStarterUI(): Promise<void> {
     try {
+      // Use empty conversation_id for starter UI - don't create conversation yet
       const request = {
         message: "",
-        conversation_id: this.conversationId,
+        conversation_id: "",  // Empty - don't create conversation for starter UI
         request_id: this.generateId(),
         metadata: {
           starter_ui_request: true,
@@ -1178,12 +1215,24 @@ export class VannaChat extends LitElement {
     );
 
     try {
+      // Get database connection from localStorage if available
+      let databaseConnection = null;
+      try {
+        const saved = localStorage.getItem("vanna_database_connection");
+        if (saved) {
+          databaseConnection = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.warn("Failed to load database connection from localStorage:", e);
+      }
+
       // Create the request
       const request = {
         message: messageText,
         conversation_id: this.conversationId,
         request_id: this.generateId(),
-        metadata: {},
+        metadata: databaseConnection ? { database_connection: databaseConnection } : {},
+        save_to_training: this.saveToTraining,
       };
 
       // Stream the response
@@ -1531,7 +1580,33 @@ export class VannaChat extends LitElement {
               <span class="status-dot"></span>
               <span class="status-text">Connected</span>
             </div>
-            <button class="header-btn" aria-label="Settings">
+            <button
+              class="header-btn"
+              aria-label="Training Data"
+              @click=${() => {
+                window.dispatchEvent(new CustomEvent("open-training-data-manager"));
+              }}
+              title="Quản lý Training Data"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
+                />
+              </svg>
+            </button>
+            <button
+              class="header-btn"
+              aria-label="Settings"
+              @click=${() => {
+                window.dispatchEvent(new CustomEvent("open-database-settings"));
+              }}
+              title="Cấu hình Database"
+            >
               <svg
                 width="16"
                 height="16"
@@ -1607,6 +1682,18 @@ export class VannaChat extends LitElement {
                 @keydown=${this.handleKeyPress}
                 rows="1"
               ></textarea>
+              <div class="input-options">
+                <label class="save-training-checkbox">
+                  <input
+                    type="checkbox"
+                    .checked=${this.saveToTraining}
+                    @change=${(e: Event) => {
+                      this.saveToTraining = (e.target as HTMLInputElement).checked;
+                    }}
+                  />
+                  <span>Lưu vào training data</span>
+                </label>
+              </div>
               <button
                 class="send-button"
                 type="button"
@@ -1652,6 +1739,9 @@ export class VannaChat extends LitElement {
             `
           : ""}
       </div>
+
+      <training-data-manager></training-data-manager>
+      <database-settings-manager></database-settings-manager>
     `;
   }
 
@@ -1667,10 +1757,10 @@ export class VannaChat extends LitElement {
   private handleConversationDeleted(e: CustomEvent) {
     const { conversationId: deletedId } = e.detail;
 
-    // If the deleted conversation is the current one, create a new conversation
+    // If the deleted conversation is the current one, reset conversation ID
+    // It will be created when user sends first message
     if (deletedId === this.conversationId) {
-      // Generate new conversation ID
-      this.conversationId = this.generateId();
+      this.conversationId = "";
 
       // Clear messages
       if (this.componentManager) {
@@ -1700,10 +1790,9 @@ export class VannaChat extends LitElement {
     }
   }
 
-  private handleNewConversation() {
-    // Always create new conversation when button is clicked
-    // Generate new conversation ID
-    this.conversationId = this.generateId();
+  private async handleNewConversation() {
+    // Reset conversation ID - will be created when user sends first message
+    this.conversationId = "";
 
     // Clear current messages
     // Note: componentManager.clear() already clears innerHTML and ensures styles are injected

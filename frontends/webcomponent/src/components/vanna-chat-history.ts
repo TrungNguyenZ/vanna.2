@@ -111,6 +111,41 @@ export class VannaChatHistory extends LitElement {
         min-height: auto;
       }
 
+      .conversation-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--vanna-space-2);
+      }
+
+      .conversation-item-content {
+        flex: 1;
+      }
+
+      .conversation-delete-btn {
+        opacity: 0;
+        transition: opacity var(--vanna-duration-200) ease;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: var(--vanna-space-1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--vanna-foreground-dimmer);
+        border-radius: var(--vanna-border-radius-md);
+        flex-shrink: 0;
+      }
+
+      .conversation-item:hover .conversation-delete-btn {
+        opacity: 1;
+      }
+
+      .conversation-delete-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
       .conversation-item:hover {
         border-color: rgba(47, 110, 255, 0.5);
         box-shadow: var(--vanna-shadow-md);
@@ -277,10 +312,7 @@ export class VannaChatHistory extends LitElement {
     this.error = null;
     
     try {
-      // Get deleted conversation IDs from localStorage
-      const deletedIds = this.getDeletedConversationIds();
-      
-      // Try to fetch conversations from API
+      // Try to fetch conversations from API (MongoDB)
       const response = await fetch(`${this.apiBase}/api/vanna/v2/conversations`, {
         method: 'GET',
         headers: {
@@ -292,24 +324,14 @@ export class VannaChatHistory extends LitElement {
         const data = await response.json();
         const apiConversations = data.conversations || [];
         
+        // Get deleted conversation IDs from localStorage (for client-side filtering)
+        const deletedIds = this.getDeletedConversationIds();
+        
         // Filter out deleted conversations
         const filtered = apiConversations.filter((c: any) => !deletedIds.includes(c.id));
         
-        // Merge with localStorage (localStorage takes priority for deleted items)
-        const localConversations = this.getLocalStorageConversations();
-        
-        // Combine: API conversations (excluding deleted) + localStorage conversations not in API
-        const combined = [
-          ...filtered,
-          ...localConversations.filter((c: any) => 
-            !deletedIds.includes(c.id) && !apiConversations.some((ac: any) => ac.id === c.id)
-          )
-        ];
-        
-        // Update localStorage to sync with filtered API data
-        localStorage.setItem('vanna_conversations', JSON.stringify(combined));
-        
-        this.conversations = this.formatConversations(combined);
+        // Use API data directly (from MongoDB)
+        this.conversations = this.formatConversations(filtered);
       } else {
         // If API not available, use localStorage as fallback
         this.loadFromLocalStorage();
@@ -332,16 +354,6 @@ export class VannaChatHistory extends LitElement {
     }
   }
 
-
-  private getLocalStorageConversations(): any[] {
-    try {
-      const stored = localStorage.getItem('vanna_conversations');
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      console.error('Failed to get localStorage conversations:', error);
-      return [];
-    }
-  }
 
   private loadFromLocalStorage() {
     try {
@@ -395,6 +407,69 @@ export class VannaChatHistory extends LitElement {
     }));
   }
 
+  private async handleDeleteConversation(e: Event, conversationId: string) {
+    e.stopPropagation(); // Prevent triggering conversation click
+    
+    if (!confirm('Bạn có chắc chắn muốn xóa cuộc hội thoại này?')) {
+      return;
+    }
+
+    try {
+      // Try to delete from API (MongoDB)
+      const response = await fetch(`${this.apiBase}/api/vanna/v2/conversations/${conversationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        this.conversations = this.conversations.filter(c => c.id !== conversationId);
+        
+        // Dispatch delete event
+        this.dispatchEvent(new CustomEvent('conversation-deleted', {
+          detail: { conversationId },
+          bubbles: true,
+          composed: true,
+        }));
+      } else {
+        // If API delete fails, just remove from local state and mark as deleted in localStorage
+        const deletedIds = this.getDeletedConversationIds();
+        if (!deletedIds.includes(conversationId)) {
+          deletedIds.push(conversationId);
+          localStorage.setItem('vanna_deleted_conversations', JSON.stringify(deletedIds));
+        }
+        
+        // Remove from local state
+        this.conversations = this.conversations.filter(c => c.id !== conversationId);
+        
+        // Dispatch delete event
+        this.dispatchEvent(new CustomEvent('conversation-deleted', {
+          detail: { conversationId },
+          bubbles: true,
+          composed: true,
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      // Still remove from local state and mark as deleted
+      const deletedIds = this.getDeletedConversationIds();
+      if (!deletedIds.includes(conversationId)) {
+        deletedIds.push(conversationId);
+        localStorage.setItem('vanna_deleted_conversations', JSON.stringify(deletedIds));
+      }
+      
+      this.conversations = this.conversations.filter(c => c.id !== conversationId);
+      
+      this.dispatchEvent(new CustomEvent('conversation-deleted', {
+        detail: { conversationId },
+        bubbles: true,
+        composed: true,
+      }));
+    }
+  }
+
   private handleNewConversation() {
     this.dispatchEvent(new CustomEvent('new-conversation', {
       detail: {},
@@ -431,17 +506,31 @@ export class VannaChatHistory extends LitElement {
               class="conversation-item ${conv.id === this.currentConversationId ? 'active' : ''}"
               @click=${() => this.handleConversationClick(conv.id)}
             >
+              <div class="conversation-item-header">
+                <div class="conversation-item-content">
               <div class="conversation-meta">
                 <span class="conversation-query-number">Query #${queryNumber}</span>
                 <span class="conversation-time">${this.formatTime(conv.updatedAt)}</span>
               </div>
-              <p class="conversation-preview">${conv.preview || conv.title || 'No preview'}</p>
+                  <p class="conversation-preview">${conv.preview || conv.title || 'No preview'}</p>
               ${hasSQL || hasChart ? html`
                 <div class="conversation-badges">
                   ${hasSQL ? html`<span class="conversation-badge">SQL</span>` : ''}
                   ${hasChart ? html`<span class="conversation-badge">Chart</span>` : ''}
                 </div>
               ` : ''}
+                </div>
+                <button
+                  class="conversation-delete-btn"
+                  @click=${(e: Event) => this.handleDeleteConversation(e, conv.id)}
+                  title="Xóa cuộc hội thoại"
+                  aria-label="Delete conversation"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           `;
         })}

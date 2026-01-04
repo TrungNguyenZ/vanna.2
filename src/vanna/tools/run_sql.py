@@ -56,8 +56,68 @@ class RunSqlTool(Tool[RunSqlToolArgs]):
     async def execute(self, context: ToolContext, args: RunSqlToolArgs) -> ToolResult:
         """Execute a SQL query using the injected SqlRunner."""
         try:
-            # Use the injected SqlRunner to execute the query
-            df = await self.sql_runner.run_sql(args, context)
+            # Validate SQL query - block dangerous operations
+            sql_upper = args.sql.strip().upper()
+            
+            # List of forbidden SQL keywords
+            forbidden_keywords = [
+                'INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE', 'ALTER', 
+                'TRUNCATE', 'REPLACE', 'MERGE', 'EXEC', 'EXECUTE', 'CALL',
+                'GRANT', 'REVOKE', 'DENY', 'BACKUP', 'RESTORE'
+            ]
+            
+            # Check if query starts with a forbidden keyword
+            first_word = sql_upper.split()[0] if sql_upper.split() else ''
+            if first_word in forbidden_keywords:
+                error_message = f"Operation '{first_word}' is not allowed. Only SELECT queries are permitted for security reasons."
+                return ToolResult(
+                    success=False,
+                    result_for_llm=error_message,
+                    ui_component=UiComponent(
+                        rich_component=NotificationComponent(
+                            type=ComponentType.NOTIFICATION,
+                            level="error",
+                            message=error_message,
+                        ),
+                        simple_component=SimpleTextComponent(text=error_message),
+                    ),
+                    error=error_message,
+                    metadata={"error_type": "forbidden_operation", "operation": first_word},
+                )
+            
+            # Also check if any forbidden keyword appears in the query (case-insensitive)
+            # This catches cases like "SELECT * FROM users; DROP TABLE users;"
+            sql_normalized = ' ' + sql_upper + ' '
+            for keyword in forbidden_keywords:
+                # Use word boundaries to avoid false positives (e.g., "SELECT" in "SELECTED")
+                pattern = f' {keyword} '
+                if pattern in sql_normalized:
+                    error_message = f"Query contains forbidden operation '{keyword}'. Only SELECT queries are permitted for security reasons."
+                    return ToolResult(
+                        success=False,
+                        result_for_llm=error_message,
+                        ui_component=UiComponent(
+                            rich_component=NotificationComponent(
+                                type=ComponentType.NOTIFICATION,
+                                level="error",
+                                message=error_message,
+                            ),
+                            simple_component=SimpleTextComponent(text=error_message),
+                        ),
+                        error=error_message,
+                        metadata={"error_type": "forbidden_operation", "operation": keyword},
+                    )
+            
+            # Check if there's a custom database connection in context metadata
+            db_connection = context.metadata.get("database_connection")
+            sql_runner = self.sql_runner
+            
+            if db_connection and db_connection.get("type") != "default":
+                # Create a new SqlRunner with the custom connection
+                sql_runner = self._create_sql_runner_from_connection(db_connection)
+            
+            # Use the SqlRunner (default or custom) to execute the query
+            df = await sql_runner.run_sql(args, context)
 
             # Determine query type
             query_type = args.sql.strip().upper().split()[0]
@@ -163,3 +223,56 @@ class RunSqlTool(Tool[RunSqlToolArgs]):
                 error=str(e),
                 metadata={"error_type": "sql_error"},
             )
+    
+    def _create_sql_runner_from_connection(self, connection: Dict[str, Any]) -> SqlRunner:
+        """Create a SqlRunner instance from connection configuration.
+        
+        Args:
+            connection: Dictionary with connection parameters (type, host, port, database, username, password)
+            
+        Returns:
+            SqlRunner instance for the specified database type
+        """
+        db_type = connection.get("type", "").lower()
+        
+        if db_type == "sqlserver":
+            from vanna.integrations.mssql import MSSQLRunner
+            # Build ODBC connection string
+            host = connection.get("host", "")
+            port = connection.get("port", 1433)
+            database = connection.get("database", "")
+            username = connection.get("username", "")
+            password = connection.get("password", "")
+            
+            # Build ODBC connection string
+            odbc_conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={host},{port};DATABASE={database};"
+            if username:
+                odbc_conn_str += f"UID={username};PWD={password};"
+            else:
+                odbc_conn_str += "Trusted_Connection=yes;"
+            
+            return MSSQLRunner(odbc_conn_str=odbc_conn_str)
+        
+        elif db_type == "mysql":
+            from vanna.integrations.mysql import MySQLRunner
+            return MySQLRunner(
+                host=connection.get("host", ""),
+                port=connection.get("port", 3306),
+                database=connection.get("database", ""),
+                user=connection.get("username", ""),
+                password=connection.get("password", ""),
+            )
+        
+        elif db_type == "postgresql":
+            from vanna.integrations.postgres import PostgresRunner
+            return PostgresRunner(
+                host=connection.get("host", ""),
+                port=connection.get("port", 5432),
+                database=connection.get("database", ""),
+                user=connection.get("username", ""),
+                password=connection.get("password", ""),
+            )
+        
+        else:
+            # Default: use the injected SqlRunner
+            return self.sql_runner

@@ -1,4 +1,23 @@
 services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=vanna
+    restart: unless-stopped
+    networks:
+      - vanna-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   vanna-agents:
     build:
       context: .
@@ -12,16 +31,34 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - MSSQL_CONNECTION_STRING=${MSSQL_CONNECTION_STRING}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-pro}
+      - MONGODB_CONNECTION_STRING=${MONGODB_CONNECTION_STRING:-mongodb://mongodb:27017/}
+      - MONGODB_DATABASE_NAME=${MONGODB_DATABASE_NAME:-vanna}
+      - MONGODB_HOST=${MONGODB_HOST:-mongodb}
+      - MONGODB_PORT=${MONGODB_PORT:-27017}
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     volumes:
       # Mount .env file if you want to use it
       - ./.env:/app/.env:ro
       # Mount data directory for persistence
       - ./data:/app/data
     restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - vanna-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
+
+volumes:
+  mongodb_data:
+
+networks:
+  vanna-network:
+    driver: bridge
 

@@ -32,6 +32,27 @@ export interface ChatResponse {
   total_chunks: number;
 }
 
+export interface TrainingData {
+  id: string;
+  text: string;
+  data_type: 'default' | 'from_chat';
+  conversation_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TrainingDataRequest {
+  text: string;
+  data_type?: 'default' | 'from_chat';
+}
+
+export interface TrainingDataListResponse {
+  training_data: TrainingData[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export interface ApiClientConfig {
   baseUrl?: string;
   sseEndpoint?: string;
@@ -287,6 +308,94 @@ export class VannaApiClient {
    */
   generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  }
+
+  /**
+   * Training Data API methods
+   */
+  async listTrainingData(dataType?: 'default' | 'from_chat', limit = 100, offset = 0): Promise<TrainingDataListResponse> {
+    const url = `${this.baseUrl}/api/vanna/v2/training-data${dataType ? `?data_type=${dataType}&limit=${limit}&offset=${offset}` : `?limit=${limit}&offset=${offset}`}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.customHeaders,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json() as Promise<TrainingDataListResponse>;
+  }
+
+  async getTrainingData(id: string): Promise<TrainingData> {
+    const url = `${this.baseUrl}/api/vanna/v2/training-data/${id}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.customHeaders,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json() as Promise<TrainingData>;
+  }
+
+  async createTrainingData(data: TrainingDataRequest): Promise<TrainingData> {
+    const url = `${this.baseUrl}/api/vanna/v2/training-data`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.customHeaders,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json() as Promise<TrainingData>;
+  }
+
+  async updateTrainingData(id: string, data: TrainingDataRequest): Promise<TrainingData> {
+    const url = `${this.baseUrl}/api/vanna/v2/training-data/${id}`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.customHeaders,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json() as Promise<TrainingData>;
+  }
+
+  async deleteTrainingData(id: string): Promise<void> {
+    const url = `${this.baseUrl}/api/vanna/v2/training-data/${id}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.customHeaders,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
   }
 }
 

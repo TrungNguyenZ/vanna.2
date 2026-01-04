@@ -28,6 +28,10 @@ dependencies = [
     "sqlparse",
     "sqlalchemy",
     "requests",
+    "pymongo>=4.0.0",
+    "psycopg2-binary",
+    "PyMySQL",
+    "pyodbc",
 ]
 
 [project.scripts]
