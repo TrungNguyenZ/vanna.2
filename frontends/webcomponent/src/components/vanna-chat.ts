@@ -1226,6 +1226,12 @@ export class VannaChat extends LitElement {
         console.warn("Failed to load database connection from localStorage:", e);
       }
 
+      // Generate conversationId if we don't have one (first message)
+      if (!this.conversationId || this.conversationId === "") {
+        this.conversationId = this.generateId();
+        console.log("Generated new conversationId:", this.conversationId);
+      }
+
       // Create the request
       const request = {
         message: messageText,
@@ -1348,6 +1354,12 @@ export class VannaChat extends LitElement {
   }
 
   private async processChunk(chunk: ChatStreamChunk) {
+    // Update conversationId from chunk if we don't have one yet
+    if (chunk.conversation_id && (!this.conversationId || this.conversationId === "")) {
+      this.conversationId = chunk.conversation_id;
+      console.log("Updated conversationId from chunk:", this.conversationId);
+    }
+
     // Dispatch chunk event for external listeners
     this.dispatchEvent(
       new CustomEvent("chunk-received", {
