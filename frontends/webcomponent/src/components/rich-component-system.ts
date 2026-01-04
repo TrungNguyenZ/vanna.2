@@ -797,9 +797,19 @@ export class TextComponentRenderer extends BaseComponentRenderer {
     if (text_align) textStyle += `text-align: ${text_align}; `;
 
     if (code_language) {
-      // Code block
+      // Code block with header for SQL
+      const isSQL = code_language.toLowerCase() === 'sql';
       container.innerHTML = `
-        <pre class="text-code" style="${textStyle}"><code class="language-${code_language}">${this.escapeHtml(content)}</code></pre>
+        <div class="code-block-wrapper">
+          ${isSQL ? `
+            <div class="code-block-header">
+              <span class="code-block-title">&lt;/&gt; GENERATED SQL</span>
+            </div>
+          ` : ''}
+          <div class="code-block-content">
+            <pre class="text-code" style="${textStyle}"><code class="language-${code_language}">${this.escapeHtml(content)}</code></pre>
+          </div>
+        </div>
       `;
     } else if (markdown) {
       // Markdown text (simple implementation)
@@ -1339,9 +1349,12 @@ export class ChartComponentRenderer extends BaseComponentRenderer {
 
         // Wrap in container with optional title
         if (title) {
+          const chartType = data?.[0]?.type || 'bar';
+          const chartTypeLabel = chartType.toUpperCase().replace('_', ' ') + ' CHART';
           container.innerHTML = `
             <div class="chart-header">
               <h3 class="chart-title">${title}</h3>
+              <button class="chart-type-badge">${chartTypeLabel}</button>
             </div>
             <div class="chart-content"></div>
           `;
@@ -1372,9 +1385,12 @@ export class ChartComponentRenderer extends BaseComponentRenderer {
 
       // Wrap in container with optional title
       if (title) {
+        const chartType = data?.[0]?.type || 'bar';
+        const chartTypeLabel = chartType.toUpperCase().replace('_', ' ') + ' CHART';
         container.innerHTML = `
           <div class="chart-header">
             <h3 class="chart-title">${title}</h3>
+            <button class="chart-type-badge">${chartTypeLabel}</button>
           </div>
           <div class="chart-content"></div>
         `;

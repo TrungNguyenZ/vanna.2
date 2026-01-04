@@ -32,6 +32,8 @@ export { VannaProgressTracker } from './components/vanna-progress-tracker';
 export { VannaChatHistory } from './components/vanna-chat-history';
 export { PlotlyChart } from './components/plotly-chart';
 export { EChartsChart } from './components/echarts-chart';
+export { TrainingDataManager } from './components/training-data-manager';
+export { DatabaseSettingsManager } from './components/database-settings-manager';
 
 // Rich component system
 export {

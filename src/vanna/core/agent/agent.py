@@ -199,6 +199,11 @@ class Agent:
             error_description = "An unexpected error occurred while processing your message. Please try again."
             if conversation_id:
                 error_description += f"\n\nConversation ID: {conversation_id}"
+            
+            # In development mode, include more error details
+            import os
+            if os.getenv("DEBUG", "false").lower() == "true" or os.getenv("ENVIRONMENT", "").lower() == "development":
+                error_description += f"\n\nError: {type(e).__name__}: {str(e)}"
 
             yield UiComponent(
                 rich_component=StatusCardComponent(
@@ -531,13 +536,18 @@ class Agent:
                 ui_features_available.append(feature_name)
 
         # Create context with observability provider and UI features
+        # Merge request metadata with UI features
+        context_metadata = {"ui_features_available": ui_features_available}
+        if request_context and request_context.metadata:
+            context_metadata.update(request_context.metadata)
+        
         context = ToolContext(
             user=user,
             conversation_id=conversation_id,
             request_id=request_id,
             agent_memory=self.agent_memory,
             observability_provider=self.observability_provider,
-            metadata={"ui_features_available": ui_features_available},
+            metadata=context_metadata,
         )
 
         # Enrich context with additional data with observability

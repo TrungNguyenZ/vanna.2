@@ -729,24 +729,108 @@ export const richComponentStyles = css`
     text-shadow: none;
   }
 
+  /* Code block wrapper */
+  .code-block-wrapper {
+    background: var(--vanna-background-default);
+    border: 1px solid var(--vanna-outline-default);
+    border-radius: var(--vanna-border-radius-xl);
+    overflow: hidden;
+    box-shadow: var(--vanna-shadow-sm);
+  }
+
+  .code-block-header {
+    background: var(--vanna-background-subtle);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--vanna-outline-default);
+  }
+
+  .code-block-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--vanna-foreground-dimmer);
+  }
+
+  .code-block-content {
+    position: relative;
+    padding: var(--vanna-space-4);
+    background: rgb(249, 250, 251);
+  }
+
+  .code-block-content::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--vanna-accent-primary-default);
+  }
+
+  .text-code {
+    margin: 0;
+    padding: 0;
+    font-family: var(--vanna-font-family-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgb(31, 41, 55);
+    overflow-x: auto;
+    padding-left: 8px;
+  }
+
+  .text-code code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+  }
+
   /* Chart */
   .rich-chart {
-    padding: var(--vanna-space-4);
+    background: var(--vanna-background-default);
+    border: 1px solid var(--vanna-outline-default);
+    border-radius: var(--vanna-border-radius-xl);
+    overflow: hidden;
+    box-shadow: var(--vanna-shadow-sm);
   }
 
   .chart-header {
-    margin-bottom: var(--vanna-space-3);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px dashed var(--vanna-outline-default);
   }
 
   .chart-title {
-    font-size: 1.125rem;
+    font-size: 14px;
     font-weight: 600;
     color: var(--vanna-foreground-default);
     margin: 0;
   }
 
+  .chart-type-badge {
+    padding: 4px 10px;
+    background: var(--vanna-azure-light);
+    color: var(--vanna-accent-primary-default);
+    border: none;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--vanna-duration-200) ease;
+  }
+
+  .chart-type-badge:hover {
+    background: var(--vanna-accent-primary-default);
+    color: white;
+  }
+
   .chart-content {
     min-height: 300px;
+    padding: 8px;
   }
 
   .chart-error {

@@ -28,6 +28,9 @@ class ChatRequest(BaseModel):
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
+    save_to_training: bool = Field(
+        default=False, description="Whether to save this conversation to training data"
+    )
 
 
 class ChatStreamChunk(BaseModel):

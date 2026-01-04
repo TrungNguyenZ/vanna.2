@@ -25,7 +25,72 @@ class VannaFastAPIServer:
         """
         self.agent = agent
         self.config = config or {}
-        self.chat_handler = ChatHandler(agent)
+        
+        # Try to initialize MongoDB stores if MongoDB is configured
+        mongo_chat_store = None
+        mongo_training_store = None
+        
+        try:
+            import os
+            # Check if MongoDB connection string is available
+            mongo_connection_string = os.getenv("MONGODB_CONNECTION_STRING")
+            mongo_host = os.getenv("MONGODB_HOST")
+            
+            if mongo_connection_string or mongo_host:
+                from ...integrations.mongodb import MongoDBConnection
+                from ...integrations.mongodb.chat_store import MongoChatStore
+                from ...integrations.mongodb.training_store import MongoTrainingStore
+                
+                # Create MongoDB connection
+                mongo_connection = MongoDBConnection()
+                
+                # Create stores
+                mongo_chat_store = MongoChatStore(mongo_connection)
+                mongo_training_store = MongoTrainingStore(mongo_connection)
+                
+                # Integrate TrainingDataContextEnhancer into Agent
+                # Create composite enhancer if agent already has an enhancer
+                from ...core.enhancer import DefaultLlmContextEnhancer, CompositeLlmContextEnhancer
+                from ...core.enhancer.training_data_enhancer import TrainingDataContextEnhancer
+                
+                training_enhancer = TrainingDataContextEnhancer(mongo_training_store)
+                
+                # If agent already has an enhancer, combine them
+                if hasattr(agent, 'llm_context_enhancer') and agent.llm_context_enhancer:
+                    existing_enhancer = agent.llm_context_enhancer
+                    # Create composite enhancer
+                    composite_enhancer = CompositeLlmContextEnhancer([
+                        existing_enhancer,
+                        training_enhancer,
+                    ])
+                    agent.llm_context_enhancer = composite_enhancer
+                else:
+                    # Use default enhancer + training enhancer
+                    default_enhancer = DefaultLlmContextEnhancer(agent.agent_memory)
+                    composite_enhancer = CompositeLlmContextEnhancer([
+                        default_enhancer,
+                        training_enhancer,
+                    ])
+                    agent.llm_context_enhancer = composite_enhancer
+                
+                print("MongoDB stores initialized successfully")
+                print("TrainingDataContextEnhancer integrated into Agent")
+        except ImportError:
+            print("Warning: pymongo not installed. MongoDB features will be disabled.")
+        except Exception as e:
+            print(f"Warning: Failed to initialize MongoDB stores: {e}")
+        
+        self.chat_handler = ChatHandler(
+            agent,
+            mongo_chat_store=mongo_chat_store,
+            mongo_training_store=mongo_training_store,
+        )
+        
+        # Log training store status
+        if mongo_training_store:
+            print(f"Training store initialized: {type(mongo_training_store).__name__}")
+        else:
+            print("WARNING: Training store is None. Training data features will be disabled.")
 
     def create_app(self) -> FastAPI:
         """Create configured FastAPI app.
