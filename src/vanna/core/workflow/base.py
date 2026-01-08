@@ -242,7 +242,7 @@ class WorkflowHandler(ABC):
                 if user.metadata.get("is_new_user"):
                     return [
                         RichTextComponent(
-                            content="# Welcome to Vanna!\\n\\nTry one of these to get started:",
+                            content="# Welcome to AI Assistant!\\n\\nTry one of these to get started:",
                             markdown=True
                         ),
                         ButtonComponent(label="Show Example Query", value="/example"),
